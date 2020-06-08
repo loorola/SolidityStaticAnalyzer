@@ -10,7 +10,7 @@ public class FileTree {
         root=new FileNode();
     }
 
-    public static FileNode addFileNode(FileNode<String> parent, String path){
+    public static FileNode addFileNode(FileNode parent, String path){
         return parent.addChild(path);
     }
 

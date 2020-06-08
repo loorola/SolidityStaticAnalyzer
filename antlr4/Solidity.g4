@@ -86,7 +86,7 @@ stateVariableDeclaration : typeName (visibleType | constantType)*
     identifier ('=' expression)? ';' ;
 
 functionFallBackDefinition :  fallbackIdentifier parameterList
-    (stateMutability | visibleType | inheritance | functionCall | identifier)*
+    (stateMutability | visibleType | inheritance | functionCall )*
     returnsParameters? (block | ';') ; // returnsParameters? added for compatibility with old compiler versions
 
 fallbackIdentifier: ('function' | 'fallback' | 'receive');

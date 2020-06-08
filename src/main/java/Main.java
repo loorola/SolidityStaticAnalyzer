@@ -49,7 +49,7 @@ public class Main {
     }
 
     private static void Unzip(String zipIn) throws Exception{
-        Stack<FileNode<String>>s = new Stack();
+        Stack<FileNode>s = new Stack();
 
         ZipInputStream zis = new ZipInputStream(new FileInputStream(zipIn));
         ZipEntry zipEntry = zis.getNextEntry();
@@ -102,8 +102,8 @@ public class Main {
 
     }
 
-    private static void add2FileTree(Stack<FileNode<String>> s, String path) {
-        FileNode<String> tmp = s.lastElement();  //pre operation
+    private static void add2FileTree(Stack<FileNode> s, String path) {
+        FileNode tmp = s.lastElement();  //pre operation
         while(!Paths.get(tmp.path).normalize().equals(Paths.get(path).getParent().normalize())){ //if the last element in stack is not the same of parent of current dir, do pop
             s.pop();
             tmp=s.lastElement();    //pop until parent is same as the popped element

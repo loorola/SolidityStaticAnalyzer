@@ -3,22 +3,21 @@ package utils.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import parser.Base.SolidityParser;
-import parser.SourceListener;
+import parser.SourceParser;
+import utils.functionCall.FunctionCallTree;
 
-public class FileNode<String> {
+public class FileNode {
     public String path;
-
     public List<FileNode> children;
-    public FileNode<String> parent;
-    public SolidityParser parseTree;
-    public SourceListener sourceListener;
+    public FileNode parent;
+    public FunctionCallTree functionCallTree;
+    public SourceParser sourceParseTree;
 
     public FileNode(){
         path=null;
         parent=null;
         this.children=new ArrayList<FileNode>();
-        parseTree=null;
+        functionCallTree =null;
     }
 
     public FileNode(String path){
@@ -28,7 +27,7 @@ public class FileNode<String> {
     }
 
     public FileNode addChild(String path){
-        FileNode<String> t = new FileNode<String>(path);
+        FileNode t = new FileNode(path);
         t.parent = this;
         this.children.add(t);
         return t;

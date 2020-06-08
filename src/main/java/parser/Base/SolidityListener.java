@@ -1,6 +1,5 @@
 package parser.Base;
 
-
 // Generated from Solidity.g4 by ANTLR 4.7.1
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -99,6 +98,16 @@ public interface SolidityListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitImportFileAsSymbol(SolidityParser.ImportFileAsSymbolContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SolidityParser#importAllOrNot}.
+	 * @param ctx the parse tree
+	 */
+	void enterImportAllOrNot(SolidityParser.ImportAllOrNotContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#importAllOrNot}.
+	 * @param ctx the parse tree
+	 */
+	void exitImportAllOrNot(SolidityParser.ImportAllOrNotContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SolidityParser#importFileFrom}.
 	 * @param ctx the parse tree
@@ -210,6 +219,26 @@ public interface SolidityListener extends ParseTreeListener {
 	 */
 	void exitFunctionDefinition(SolidityParser.FunctionDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SolidityParser#functionIdentifier}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionIdentifier(SolidityParser.FunctionIdentifierContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#functionIdentifier}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionIdentifier(SolidityParser.FunctionIdentifierContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SolidityParser#constructorIdentifier}.
+	 * @param ctx the parse tree
+	 */
+	void enterConstructorIdentifier(SolidityParser.ConstructorIdentifierContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#constructorIdentifier}.
+	 * @param ctx the parse tree
+	 */
+	void exitConstructorIdentifier(SolidityParser.ConstructorIdentifierContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SolidityParser#returnsParameters}.
 	 * @param ctx the parse tree
 	 */
@@ -249,6 +278,16 @@ public interface SolidityListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFunctionFallBackDefinition(SolidityParser.FunctionFallBackDefinitionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SolidityParser#fallbackIdentifier}.
+	 * @param ctx the parse tree
+	 */
+	void enterFallbackIdentifier(SolidityParser.FallbackIdentifierContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#fallbackIdentifier}.
+	 * @param ctx the parse tree
+	 */
+	void exitFallbackIdentifier(SolidityParser.FallbackIdentifierContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SolidityParser#inheritance}.
 	 * @param ctx the parse tree

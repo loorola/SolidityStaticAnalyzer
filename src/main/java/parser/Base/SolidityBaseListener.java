@@ -1,7 +1,6 @@
-// Generated from Solidity.g4 by ANTLR 4.7.1
 package parser.Base;
 
-
+// Generated from Solidity.g4 by ANTLR 4.7.1
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -121,6 +120,18 @@ public class SolidityBaseListener implements SolidityListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitImportFileAsSymbol(SolidityParser.ImportFileAsSymbolContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterImportAllOrNot(SolidityParser.ImportAllOrNotContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitImportAllOrNot(SolidityParser.ImportAllOrNotContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -258,6 +269,30 @@ public class SolidityBaseListener implements SolidityListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFunctionIdentifier(SolidityParser.FunctionIdentifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunctionIdentifier(SolidityParser.FunctionIdentifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterConstructorIdentifier(SolidityParser.ConstructorIdentifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConstructorIdentifier(SolidityParser.ConstructorIdentifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterReturnsParameters(SolidityParser.ReturnsParametersContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -301,6 +336,18 @@ public class SolidityBaseListener implements SolidityListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFunctionFallBackDefinition(SolidityParser.FunctionFallBackDefinitionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFallbackIdentifier(SolidityParser.FallbackIdentifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFallbackIdentifier(SolidityParser.FallbackIdentifierContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
