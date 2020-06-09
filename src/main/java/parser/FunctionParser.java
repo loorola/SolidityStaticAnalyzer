@@ -32,7 +32,8 @@ public class FunctionParser extends SolidityBaseListener {
             }else if(tmp.modifierDefinition()!=null){
                 t = cn.addChild(tmp.modifierDefinition(),6);
                 t.alias=tmp.modifierDefinition().identifier().getText();
-            }else if(tmp.functionDefinition()!=null&&tmp.functionDefinition().functionIdentifier()!=null){  //not fallback
+            }else if(tmp.functionDefinition()!=null&&tmp.functionDefinition().functionIdentifier()!=null){  //normal function
+
                 if(tmp.functionDefinition().functionIdentifier().identifier()!=null){
                     t = cn.addChild(tmp.functionDefinition(),2);
                     t.alias=tmp.functionDefinition().functionIdentifier().identifier().getText();

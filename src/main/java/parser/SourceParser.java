@@ -1,115 +1,190 @@
 package parser;
 
 import javafx.util.Pair;
+import org.antlr.v4.runtime.ParserRuleContext;
 import parser.Base.SolidityBaseListener;
 import parser.Base.SolidityParser;
 
 import utils.File.FileNode;
 import utils.File.FileTree;
+import utils.Path.PathResolver;
+
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+
+/*
+this class is looking for all imported resources from other file with its imported contract or library
+ */
+
 
 public class SourceParser extends SolidityBaseListener {
-    private FileNode self;
-    public ArrayList<Pair> src=new ArrayList<Pair>();
-    public ArrayList<Pair> srcModule = new ArrayList<Pair>();
+    public class Source{    //imported local file
+        public FileNode fn;
+        public String alias;
+        List<SourceModule> srcModule = new ArrayList<>();   //contract or library that is included
+        public Source(FileNode fn, String alias){
+            this.fn=fn;
+            this.alias=alias;
+        }
 
-    public ArrayList<Pair> notFoundInDirectory=new ArrayList<Pair>();
+        public void addModule(String moduleName,String alias){
+            SourceModule srm=new SourceModule(moduleName,alias);
+            srcModule.add(srm);
+        }
+    }
+    public class GlobalSource{  //imported global file
+        public Path path;
+        public String alias;
+        List<SourceModule> srcModule = new ArrayList<>();
+        public GlobalSource(Path path, String alias){
+            this.path=path;
+            this.alias=alias;
+        }
+
+        public void addModule(String moduleName,String alias){
+            SourceModule srm=new SourceModule(moduleName,alias);
+            srcModule.add(srm);
+        }
+    }
+
+    public class SourceModule{  //imported contract or library
+        String moduleName;
+        ParserRuleContext ctx;
+
+        public SourceModule(String moduleName, String alias){
+            this.moduleName=moduleName;
+        }
+    }
+
+
+    private FileNode self;
+    List<Source>sourceList = new ArrayList<>();
+    List<GlobalSource>globalSourceList = new ArrayList<>();
 
     public SourceParser(FileNode fn){
         fn.sourceParseTree =this;
         self=fn;
     }
 
-
-    private Path getSourcePath(String path){
-        path=path.replaceAll("^\"|\"$", "");
-        Pair<FileNode,String>map;
-
-        Path p = Paths.get(self.path);   //this file path
-        Path q=Paths.get(path);   //the imported file path
-
-        Path src_p=resolveSourcePath(p,q);  //resolve the src file path
-
-        return src_p;
-    }
-
-    @Override public void enterImportFile(SolidityParser.ImportFileContext ctx) {   //same as import all
-        Path sourcePath = getSourcePath(ctx.stringLiteral().getText());
+    @Override
+    public void enterImportFile(SolidityParser.ImportFileContext ctx) {   //same as import all
+        Path sourcePath = PathResolver.resolveImportedPath(Paths.get(self.path),ctx.stringLiteral().getText());
         FileNode source_node=FileTree.findFileNode(sourcePath.toString());   //find if it is in the same directory
-        Pair<FileNode,String>map1;
-        Pair<Path,String>map2;
+        GlobalSource gs;
+        Source s;
         String alias;
-        if(ctx.identifier()==null){ //import all
+        if(ctx.identifier()==null){
             if(source_node==null){   //source not found from the directory which means it is from the internet
-                map2=new Pair<Path,String>(sourcePath,null);
-                notFoundInDirectory.add(map2);
-                //...
+                gs = new GlobalSource(sourcePath,null);
+                globalSourceList.add(gs);
             } else {
-                map1=new Pair<FileNode,String>(source_node,null);    //add into src list
-                src.add(map1);
+                s = new Source(source_node,null);
+                sourceList.add(s);
             }
 
-        }else {
+        }else { //with identifier
             alias=ctx.identifier().getText().replaceAll("^\"|\"$", "");
             if(source_node==null){
-                map2=new Pair<Path,String>(sourcePath,alias);
-                notFoundInDirectory.add(map2);
+                gs = new GlobalSource(sourcePath,alias);
+                globalSourceList.add(gs);
             }else{
-                map1=new Pair<FileNode,String>(source_node,alias);
-                System.out.println(map1.getKey().path+" "+map1.getValue());
-                src.add(map1);
+                s = new Source(source_node,alias);
+                sourceList.add(s);
             }
 
         }
     }
 
-    @Override public void enterImportFileAsSymbol(SolidityParser.ImportFileAsSymbolContext ctx) {
-        String parent=ctx.stringLiteral().getText();
-        System.out.println(parent);
+    @Override
+    public void enterImportFileAsSymbol(SolidityParser.ImportFileAsSymbolContext ctx) {
+        Path sourcePath = PathResolver.resolveImportedPath(Paths.get(self.path),ctx.stringLiteral().getText());
+        FileNode source_node=FileTree.findFileNode(sourcePath.toString());   //find if it is in the same directory
+        GlobalSource gs;
+        Source s;
 
-        if(ctx.identifier()!=null){
-
-        }else{
-
+        if(ctx.identifier()==null){ //import file by default identifier
+            if(source_node==null&&ctx.importAllOrNot().identifier()==null){
+                //source not found from the directory which means it is from the internet
+                //import all
+                gs = new GlobalSource(sourcePath,null);
+                globalSourceList.add(gs);
+            } else if(source_node==null){
+                //source not found from the directory which means it is from the internet
+                //import one contract or library only
+                gs = new GlobalSource(sourcePath,null);
+                gs.addModule(ctx.importAllOrNot().identifier().getText(),null);
+                globalSourceList.add(gs);
+            } else if(ctx.importAllOrNot().identifier()==null){
+                //source can be found from the directory
+                //import all
+                s = new Source(source_node,null);
+                sourceList.add(s);
+            }else{
+                //source can be found from the directory
+                //import one contract or library only
+                s = new Source(source_node,null);
+                s.addModule(ctx.importAllOrNot().identifier().getText(),null);
+                sourceList.add(s);
+            }
+        }else{  //import file by using identifier
+            if(source_node==null&&ctx.importAllOrNot().identifier()==null){
+                //source not found from the directory which means it is from the internet
+                //import all
+                gs = new GlobalSource(sourcePath,ctx.identifier().getText());
+                globalSourceList.add(gs);
+            } else if(source_node==null){
+                //source not found from the directory which means it is from the internet
+                //import one contract or library only
+                gs = new GlobalSource(sourcePath,ctx.identifier().getText());
+                gs.addModule(ctx.importAllOrNot().identifier().getText(),null);
+                globalSourceList.add(gs);
+            } else if(ctx.importAllOrNot().identifier()==null){
+                //source can be found from the directory
+                //import all
+                s = new Source(source_node,ctx.identifier().getText());
+                sourceList.add(s);
+            }else{
+                //source can be found from the directory
+                //import one contract or library only
+                s = new Source(source_node,ctx.identifier().getText());
+                s.addModule(ctx.importAllOrNot().identifier().getText(),null);
+                sourceList.add(s);
+            }
         }
     }
 
-    @Override public void enterImportFileFrom(SolidityParser.ImportFileFromContext ctx) {
-        String parent=ctx.stringLiteral().getText();
-        System.out.println(parent);
-        if(ctx.importDeclaration().size()==1){
-            if(ctx.importDeclaration(0).identifier().size()==1){
+    @Override
+    public void enterImportFileFrom(SolidityParser.ImportFileFromContext ctx) {
+        Path sourcePath = PathResolver.resolveImportedPath(Paths.get(self.path),ctx.stringLiteral().getText());
+        FileNode source_node=FileTree.findFileNode(sourcePath.toString());   //find if it is in the same directory
+        GlobalSource gs;
+        Source s;
 
-            }else{
-
-            }
-        }else{
-            for(SolidityParser.ImportDeclarationContext x: ctx.importDeclaration()){
-                if(x.identifier().size()==1){
-
+        if(source_node==null){
+            gs = new GlobalSource(sourcePath,null);
+            ctx.importDeclaration().forEach(x->{
+                if(x.identifier(1)==null){  //contract or library without identifier
+                    gs.addModule(x.identifier(0).getText(),null);
                 }else{
-                    for(SolidityParser.IdentifierContext y: x.identifier()){
-
-                    }
+                    gs.addModule(x.identifier(0).getText(),x.identifier(1).getText());
                 }
-
-            }
-        }
-    }
-
-    private Path resolveSourcePath(Path p, Path q){
-        if(q.startsWith(".")){
-            p=p.resolve("../").resolve(q);  //"./"means the file in same directory https://solidity.readthedocs.io/en/latest/layout-of-source-files.html
+            });
+            globalSourceList.add(gs);
         }else{
-            p=p.resolve(q);
+            s=new Source(source_node,null);
+            ctx.importDeclaration().forEach(x->{
+                if(x.identifier(1)==null){  //contract or library without identifier
+                    s.addModule(x.identifier(0).getText(),null);
+                }else{
+                    s.addModule(x.identifier(0).getText(),x.identifier(1).getText());
+                }
+            });
+            sourceList.add(s);
         }
-        return p.normalize();
     }
-
-
-
 
 }

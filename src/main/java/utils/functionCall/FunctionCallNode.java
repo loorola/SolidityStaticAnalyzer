@@ -44,5 +44,37 @@ public class FunctionCallNode {
         return -1;
     }
 
-
+    @Override
+    public String toString(){
+        String txt="nil";
+        switch(type){
+            case CONTRACT:
+            case LIBRARY:
+                txt=ctx.getChild(SolidityParser.IdentifierContext.class,0).getText();
+                break;
+            case FUNCTION: {
+                if(ctx.getChild(SolidityParser.ConstructorIdentifierContext.class,0)!=null){
+                    txt="constructor";
+                }else{
+                    txt=ctx.getChild(SolidityParser.FunctionIdentifierContext.class,0).identifier().getText();
+                }
+            }
+            break;
+            case USINGFOR: {
+                txt=ctx.getText();
+            }
+            break;
+            case FALLBACK:
+                txt=ctx.getChild(SolidityParser.FallbackIdentifierContext.class,0).getText();
+                break;
+            case EXPRESSION:
+                txt=ctx.getText();
+                break;
+            case MODIFIER:
+                txt=ctx.getChild(SolidityParser.IdentifierContext.class,0).getText();
+                break;
+            default: break;
+        }
+        return txt;
+    }
 }
