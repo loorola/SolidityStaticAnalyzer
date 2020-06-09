@@ -8,16 +8,14 @@ import parser.Base.SolidityParser;
 import utils.File.FileNode;
 import utils.File.FileTree;
 import config.FileDirectory;
-import utils.functionCall.FunctionCallNode;
-import utils.functionCall.FunctionCallTree;
+import utils.FunctionCall.FunctionCallNode;
+import utils.FunctionCall.FunctionCallTree;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
 
 public class ProjectParser {
-
-
 
     public static void init(FileTree ft) throws Exception{ //parse all .sol files
         Stack<FileNode> s=new Stack<FileNode>();
@@ -34,7 +32,8 @@ public class ProjectParser {
                     System.out.println("Contract: "+fn.path);
 
                     SourceParser cg = new SourceParser(fn);
-                    FunctionParser fl = new FunctionParser();
+
+                    ContentParser fl = new ContentParser();
                     p = FileDirectory.tmp_root.toPath().resolve(fn.path);
 
                     input = new ANTLRFileStream(p.toString());
@@ -47,6 +46,12 @@ public class ProjectParser {
                     ParseTreeWalker walker = new ParseTreeWalker();
 
                     walker.walk(cg,tree);
+                    walker.walk(fl,tree);
+                    fn.sourceParser = cg;
+                    fn.contentParser = fl;
+
+
+                    //Testing.printSource(cg);
                     //walker.walk(fl,tree);
                     //fn.functionCallTree = fl.ct;
                     //Testing.printFunctionCallTree(fn.functionCallTree);
@@ -86,8 +91,32 @@ public class ProjectParser {
             }
         }
 
-        private static void printSource(){
-
+        private static void printSource(SourceParser sp){
+            System.out.println("Local Source List: ");
+            sp.sourceList.forEach(x->{
+                System.out.println(x.fn.path+"->"+x.alias);
+                if(!x.srcModule.isEmpty()){
+                    System.out.println("Used Contract: ");
+                    x.srcModule.forEach(y->{
+                        System.out.println(y.moduleName);
+                    });
+                }else{
+                    System.out.println("all");
+                }
+            });
+            System.out.println();
+            System.out.println("Global Source List: ");
+            sp.globalSourceList.forEach(x->{
+                System.out.println(x.path+"->"+x.alias);
+                if(!x.srcModule.isEmpty()){
+                    System.out.println("Used Contract: ");
+                    x.srcModule.forEach(y->{
+                        System.out.println(y.moduleName);
+                    });
+                }else{
+                    System.out.println("all");
+                }
+            });
         }
     }
 

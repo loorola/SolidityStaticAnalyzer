@@ -67,7 +67,7 @@ usingForDeclaration : 'using' identifier 'for' ('*' | typeName) ';' ;
 
 structDefinition : 'struct' identifier '{' (variableDeclaration ';')* '}' ;
 
-modifierDefinition : 'modifier' identifier parameterList? block ;
+modifierDefinition : 'modifier' identifier parameterList? modifierBlock ;
 
 functionDefinition : (functionIdentifier| constructorIdentifier) parameterList
     (stateMutability | visibleType | inheritance | functionCall | identifier)*
@@ -269,6 +269,12 @@ parameter : typeName storageLocation? identifier? ;
 storageLocation : 'memory' | 'storage' | 'calldata';
 
 //___Statements___
+
+modifierBlock: '{' modifierStatement* '}';
+
+modifierStatement: (statement|requireStatement);
+
+requireStatement: 'require' '(' statement ')' ;
 
 block: '{' statement* '}' ;
 

@@ -1,4 +1,4 @@
-package utils.functionCall;
+package utils.FunctionCall;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import parser.Base.SolidityParser;

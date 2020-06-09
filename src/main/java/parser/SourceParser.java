@@ -1,6 +1,5 @@
 package parser;
 
-import javafx.util.Pair;
 import org.antlr.v4.runtime.ParserRuleContext;
 import parser.Base.SolidityBaseListener;
 import parser.Base.SolidityParser;
@@ -14,7 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /*
 this class is looking for all imported resources from other file with its imported contract or library
@@ -66,7 +64,7 @@ public class SourceParser extends SolidityBaseListener {
     List<GlobalSource>globalSourceList = new ArrayList<>();
 
     public SourceParser(FileNode fn){
-        fn.sourceParseTree =this;
+        fn.sourceParser =this;
         self=fn;
     }
 

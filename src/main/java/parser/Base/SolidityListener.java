@@ -769,6 +769,36 @@ public interface SolidityListener extends ParseTreeListener {
 	 */
 	void exitStorageLocation(SolidityParser.StorageLocationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SolidityParser#modifierBlock}.
+	 * @param ctx the parse tree
+	 */
+	void enterModifierBlock(SolidityParser.ModifierBlockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#modifierBlock}.
+	 * @param ctx the parse tree
+	 */
+	void exitModifierBlock(SolidityParser.ModifierBlockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SolidityParser#modifierStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterModifierStatement(SolidityParser.ModifierStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#modifierStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitModifierStatement(SolidityParser.ModifierStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SolidityParser#requireStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterRequireStatement(SolidityParser.RequireStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#requireStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitRequireStatement(SolidityParser.RequireStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SolidityParser#block}.
 	 * @param ctx the parse tree
 	 */

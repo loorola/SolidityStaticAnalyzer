@@ -3,13 +3,23 @@ package parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import parser.Base.SolidityBaseListener;
 import parser.Base.SolidityParser;
-import utils.functionCall.FunctionCallNode;
-import utils.functionCall.FunctionCallTree;
+import utils.FunctionCall.FunctionCallNode;
+import utils.FunctionCall.FunctionCallTree;
 
-public class FunctionParser extends SolidityBaseListener {
+import java.util.List;
+
+public class ContentParser extends SolidityBaseListener {
     public FunctionCallTree ct;
 
-    public FunctionParser(){
+    public class Modifier{
+
+    }
+
+    public class UsingFor{
+
+    }
+
+    public ContentParser(){
         ct=new FunctionCallTree();
     }
 
@@ -33,7 +43,6 @@ public class FunctionParser extends SolidityBaseListener {
                 t = cn.addChild(tmp.modifierDefinition(),6);
                 t.alias=tmp.modifierDefinition().identifier().getText();
             }else if(tmp.functionDefinition()!=null&&tmp.functionDefinition().functionIdentifier()!=null){  //normal function
-
                 if(tmp.functionDefinition().functionIdentifier().identifier()!=null){
                     t = cn.addChild(tmp.functionDefinition(),2);
                     t.alias=tmp.functionDefinition().functionIdentifier().identifier().getText();

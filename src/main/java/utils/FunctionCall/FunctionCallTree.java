@@ -1,4 +1,4 @@
-package utils.functionCall;
+package utils.FunctionCall;
 
 public class FunctionCallTree {
     public FunctionCallNode root;

@@ -3,21 +3,20 @@ package utils.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import parser.ContentParser;
 import parser.SourceParser;
-import utils.functionCall.FunctionCallTree;
 
 public class FileNode {
     public String path;
     public List<FileNode> children;
     public FileNode parent;
-    public FunctionCallTree functionCallTree;
-    public SourceParser sourceParseTree;
+    public ContentParser contentParser =null;
+    public SourceParser sourceParser=null;
 
     public FileNode(){
         path=null;
         parent=null;
         this.children=new ArrayList<FileNode>();
-        functionCallTree =null;
     }
 
     public FileNode(String path){
