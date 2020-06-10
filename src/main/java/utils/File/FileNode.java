@@ -3,14 +3,14 @@ package utils.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import parser.ContentParser;
 import parser.SourceParser;
+import utils.FunctionCall.ContractNode;
 
 public class FileNode {
     public String path;
     public List<FileNode> children;
     public FileNode parent;
-    public ContentParser contentParser =null;
+    public List<ContractNode> contractNodeList = new ArrayList<>();
     public SourceParser sourceParser=null;
 
     public FileNode(){

@@ -70,7 +70,7 @@ structDefinition : 'struct' identifier '{' (variableDeclaration ';')* '}' ;
 modifierDefinition : 'modifier' identifier parameterList? modifierBlock ;
 
 functionDefinition : (functionIdentifier| constructorIdentifier) parameterList
-    (stateMutability | visibleType | inheritance | functionCall | identifier)*
+    (stateMutability | visibleType | inheritance | identifier)*
     returnsParameters? (block | ';') ;
 
 functionIdentifier: 'function' identifier;
@@ -85,8 +85,8 @@ variableDeclaration
 stateVariableDeclaration : typeName (visibleType | constantType)*
     identifier ('=' expression)? ';' ;
 
-functionFallBackDefinition :  fallbackIdentifier parameterList
-    (stateMutability | visibleType | inheritance | functionCall )*
+functionFallBackDefinition :  fallbackIdentifier
+    (stateMutability | visibleType | inheritance )*
     returnsParameters? (block | ';') ; // returnsParameters? added for compatibility with old compiler versions
 
 fallbackIdentifier: ('function' | 'fallback' | 'receive');

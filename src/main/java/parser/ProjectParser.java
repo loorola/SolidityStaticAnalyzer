@@ -8,8 +8,7 @@ import parser.Base.SolidityParser;
 import utils.File.FileNode;
 import utils.File.FileTree;
 import config.FileDirectory;
-import utils.FunctionCall.FunctionCallNode;
-import utils.FunctionCall.FunctionCallTree;
+import utils.FunctionCall.ContractNode;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -48,8 +47,7 @@ public class ProjectParser {
                     walker.walk(cg,tree);
                     walker.walk(fl,tree);
                     fn.sourceParser = cg;
-                    fn.contentParser = fl;
-
+                    //fn.contentParser = fl;
 
                     //Testing.printSource(cg);
                     //walker.walk(fl,tree);
@@ -68,28 +66,6 @@ public class ProjectParser {
     }
 
 
-    private static class Testing{
-        private static void printFunctionCallTree(FunctionCallTree ft){
-            FunctionCallNode n = ft.root;
-            Queue<FunctionCallNode> q=new LinkedList<FunctionCallNode>();
-            q.add(n);
-            while(!q.isEmpty()){
-                n=q.remove();
-                try{
-                    if(n.ctx!=null) {
-                        String txt=n.toString();
-                        System.out.println(txt);
-                    }
-                    Iterator<FunctionCallNode>f = n.functionCallNodeList.iterator();
-                    while(f.hasNext()){
-                        q.add(f.next());
-                    }
-                }catch(Exception e){
-                    System.out.println(e);
-                }
-
-            }
-        }
 
         private static void printSource(SourceParser sp){
             System.out.println("Local Source List: ");
@@ -118,8 +94,8 @@ public class ProjectParser {
                 }
             });
         }
-    }
-
-
-
 }
+
+
+
+
