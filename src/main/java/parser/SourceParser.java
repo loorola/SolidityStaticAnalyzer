@@ -6,7 +6,7 @@ import parser.Base.SolidityParser;
 
 import utils.File.FileNode;
 import utils.File.FileTree;
-import utils.Path.PathResolver;
+import utils.Tools.Path.PathResolver;
 
 
 import java.nio.file.Path;
