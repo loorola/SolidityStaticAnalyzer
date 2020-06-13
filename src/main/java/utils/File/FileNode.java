@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import parser.SourceParser;
-import utils.FunctionCall.ContractNode;
+import utils.FunctionCall.ContentNode;
 
 public class FileNode {
     public String path;
     public List<FileNode> children;
     public FileNode parent;
-    public List<ContractNode> contractNodeList = new ArrayList<>();
+    public List<ContentNode> contentNodeList = new ArrayList<>();
     public SourceParser sourceParser=null;
 
     public FileNode(){

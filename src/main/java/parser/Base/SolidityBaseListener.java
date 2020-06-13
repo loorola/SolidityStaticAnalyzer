@@ -269,6 +269,18 @@ public class SolidityBaseListener implements SolidityListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFunctionFallBackDefinition(SolidityParser.FunctionFallBackDefinitionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunctionFallBackDefinition(SolidityParser.FunctionFallBackDefinitionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFunctionIdentifier(SolidityParser.FunctionIdentifierContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -324,18 +336,6 @@ public class SolidityBaseListener implements SolidityListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStateVariableDeclaration(SolidityParser.StateVariableDeclarationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterFunctionFallBackDefinition(SolidityParser.FunctionFallBackDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFunctionFallBackDefinition(SolidityParser.FunctionFallBackDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -924,30 +924,6 @@ public class SolidityBaseListener implements SolidityListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStorageLocation(SolidityParser.StorageLocationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterModifierBlock(SolidityParser.ModifierBlockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitModifierBlock(SolidityParser.ModifierBlockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterModifierStatement(SolidityParser.ModifierStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitModifierStatement(SolidityParser.ModifierStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

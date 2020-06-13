@@ -67,11 +67,17 @@ usingForDeclaration : 'using' identifier 'for' ('*' | typeName) ';' ;
 
 structDefinition : 'struct' identifier '{' (variableDeclaration ';')* '}' ;
 
-modifierDefinition : 'modifier' identifier parameterList? modifierBlock ;
+modifierDefinition : 'modifier' identifier parameterList? block ;
 
 functionDefinition : (functionIdentifier| constructorIdentifier) parameterList
-    (stateMutability | visibleType | inheritance | identifier)*
+    (stateMutability | visibleType | inheritance | identifier | expression)*
     returnsParameters? (block | ';') ;
+
+functionFallBackDefinition :  fallbackIdentifier parameterList
+    (stateMutability | visibleType | inheritance )*
+    returnsParameters? (block | ';') ; // returnsParameters? added for compatibility with old compiler versions
+
+//expression in functionDefinition is modifier or derived constructor
 
 functionIdentifier: 'function' identifier;
 
@@ -82,12 +88,8 @@ returnsParameters : 'returns' parameterList ;
 variableDeclaration
     : typeName (storageLocation? identifier)? ;
 
-stateVariableDeclaration : typeName (visibleType | constantType)*
-    identifier ('=' expression)? ';' ;
-
-functionFallBackDefinition :  fallbackIdentifier
-    (stateMutability | visibleType | inheritance )*
-    returnsParameters? (block | ';') ; // returnsParameters? added for compatibility with old compiler versions
+stateVariableDeclaration : typeName (visibleType | constantType)?
+    identifier (',' identifier?)? ('=' expression)? ';' ;
 
 fallbackIdentifier: ('function' | 'fallback' | 'receive');
 
@@ -270,11 +272,7 @@ storageLocation : 'memory' | 'storage' | 'calldata';
 
 //___Statements___
 
-modifierBlock: '{' modifierStatement* '}';
-
-modifierStatement: (statement|requireStatement);
-
-requireStatement: 'require' '(' statement ')' ;
+requireStatement: 'require' '(' expression (',' stringLiteral)? ')' ;
 
 block: '{' statement* '}' ;
 
@@ -294,6 +292,7 @@ statement
     | throwRevertStatement ';'
     | emitEventStatement ';'
     | expressionStatement ';'
+    | requireStatement ';'
     ;
 
 tryCatchStatement

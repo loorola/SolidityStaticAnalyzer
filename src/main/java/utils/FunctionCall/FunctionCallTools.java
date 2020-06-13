@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class FunctionCallTools {
+
+
     public static boolean expressionHasFunctionCall(SolidityParser.ExpressionContext e){
         boolean has = false;
 

@@ -5,19 +5,18 @@ import parser.Base.SolidityParser;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FallbackFunction{
-    SolidityParser.BlockContext block;
-    public SolidityParser.StateMutabilityContext stateMutability = null;
+public class FallbackFunction extends BaseNode{
+    public String alias = null;
+    public SolidityParser.BlockContext block;
+    public String stateMutability = null;
     public SolidityParser.InheritanceContext inheritanceContext = null;
-    public List<Parameter> returnParameterList = new ArrayList<>();
+    public List<String> returnParameterList = new ArrayList<>();
 
-    public void addReturnParameter(String alias, String dataType){
-        Parameter p =new Parameter(alias, dataType);
-        returnParameterList.add(p);
+    public FallbackFunction(SolidityParser.BlockContext ctx){
+        this.block = ctx;
     }
 
-    public FallbackFunction(SolidityParser.StateMutabilityContext stateMutability, SolidityParser.BlockContext ctx){
-        this.stateMutability=stateMutability;
-        this.block = ctx;
+    public void addReturnParameter(String dataType){
+        returnParameterList.add(dataType);
     }
 }

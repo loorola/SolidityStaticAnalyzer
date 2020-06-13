@@ -27,8 +27,8 @@ public class Instance extends BaseNode{
         modifierList.add(modifier);
     }
 
-    public void addStateVariable(StateVariable stateVariable){
-        stateVariableList.add(stateVariable);
+    public void addStateVariable(StateVariable variable){
+        stateVariableList.add(variable);
     }
 
     public void addFallbackFunction(FallbackFunction fallbackFunction){

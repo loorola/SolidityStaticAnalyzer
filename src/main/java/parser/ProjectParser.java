@@ -8,7 +8,6 @@ import parser.Base.SolidityParser;
 import utils.File.FileNode;
 import utils.File.FileTree;
 import config.FileDirectory;
-import utils.FunctionCall.ContractNode;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -30,9 +29,9 @@ public class ProjectParser {
                 if(!tf.isDirectory()){
                     System.out.println("Contract: "+fn.path);
 
-                    SourceParser cg = new SourceParser(fn);
+                    //SourceParser cg = new SourceParser(fn);
 
-                    ContentParser fl = new ContentParser();
+                    ContentParser contentParser = new ContentParser(fn);
                     p = FileDirectory.tmp_root.toPath().resolve(fn.path);
 
                     input = new ANTLRFileStream(p.toString());
@@ -44,14 +43,14 @@ public class ProjectParser {
                     ParseTree tree = parser.sourceUnit();
                     ParseTreeWalker walker = new ParseTreeWalker();
 
-                    walker.walk(cg,tree);
-                    walker.walk(fl,tree);
-                    fn.sourceParser = cg;
-                    //fn.contentParser = fl;
+                    walker.walk(contentParser,tree);
+                    //walker.walk(contentParser,tree);
+                    //fn.sourceParser = contentParser;
+                    //fn.contentParser = contentParser;
 
                     //Testing.printSource(cg);
-                    //walker.walk(fl,tree);
-                    //fn.functionCallTree = fl.ct;
+                    //walker.walk(contentParser,tree);
+                    //fn.functionCallTree = contentParser.ct;
                     //Testing.printFunctionCallTree(fn.functionCallTree);
                     //System.out.println(tree.toStringTree(parser));
                 }

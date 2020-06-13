@@ -219,6 +219,16 @@ public interface SolidityListener extends ParseTreeListener {
 	 */
 	void exitFunctionDefinition(SolidityParser.FunctionDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SolidityParser#functionFallBackDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionFallBackDefinition(SolidityParser.FunctionFallBackDefinitionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#functionFallBackDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionFallBackDefinition(SolidityParser.FunctionFallBackDefinitionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SolidityParser#functionIdentifier}.
 	 * @param ctx the parse tree
 	 */
@@ -268,16 +278,6 @@ public interface SolidityListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStateVariableDeclaration(SolidityParser.StateVariableDeclarationContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SolidityParser#functionFallBackDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunctionFallBackDefinition(SolidityParser.FunctionFallBackDefinitionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SolidityParser#functionFallBackDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunctionFallBackDefinition(SolidityParser.FunctionFallBackDefinitionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SolidityParser#fallbackIdentifier}.
 	 * @param ctx the parse tree
@@ -768,26 +768,6 @@ public interface SolidityListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStorageLocation(SolidityParser.StorageLocationContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SolidityParser#modifierBlock}.
-	 * @param ctx the parse tree
-	 */
-	void enterModifierBlock(SolidityParser.ModifierBlockContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SolidityParser#modifierBlock}.
-	 * @param ctx the parse tree
-	 */
-	void exitModifierBlock(SolidityParser.ModifierBlockContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SolidityParser#modifierStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterModifierStatement(SolidityParser.ModifierStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SolidityParser#modifierStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitModifierStatement(SolidityParser.ModifierStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SolidityParser#requireStatement}.
 	 * @param ctx the parse tree

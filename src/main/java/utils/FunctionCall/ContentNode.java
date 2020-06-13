@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ContractNode {
+public class ContentNode {
     List<BaseNode> nodeList = new ArrayList<>();
 
     public void add(BaseNode n){
