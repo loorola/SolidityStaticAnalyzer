@@ -2,6 +2,9 @@ import config.FileDirectory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import parser.ProjectParser;
+import report.CFG;
+import report.ExposureReport;
+
 import utils.File.FileNode;
 import utils.File.FileTree;
 
@@ -14,7 +17,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 
-
 public class Main {
     static FileTree ft;
 
@@ -23,6 +25,8 @@ public class Main {
             init(); //create report and tmp folders
             Unzip(args[0]); //unzip the files
             ProjectParser.init(ft);
+            CFG.generateCFG(ft.root);
+            ExposureReport.generateCFG(ft.root);
             /*
             ZipFile zip = new ZipFile(args[0]);
             zip.stream().map(ZipEntry::getName).forEach((n)->{

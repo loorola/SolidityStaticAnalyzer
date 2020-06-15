@@ -29,9 +29,8 @@ public class ProjectParser {
                 if(!tf.isDirectory()){
                     System.out.println("Contract: "+fn.path);
 
-                    //SourceParser cg = new SourceParser(fn);
-
                     ContentParser contentParser = new ContentParser(fn);
+                    //ContextSensitiveParser ps = new ContextSensitiveParser(fn);
                     p = FileDirectory.tmp_root.toPath().resolve(fn.path);
 
                     input = new ANTLRFileStream(p.toString());

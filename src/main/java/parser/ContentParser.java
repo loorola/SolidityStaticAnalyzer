@@ -4,22 +4,152 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import parser.Base.SolidityBaseListener;
 import parser.Base.SolidityParser;
 import utils.File.FileNode;
-import utils.FunctionCall.ContentNode;
+import utils.File.FileTree;
+import utils.FunctionCall.Content;
 import utils.FunctionCall.ContractNodeType.*;
 import utils.FunctionCall.ContractNodeType.Enum;
+import utils.Source.GlobalSource;
+import utils.Source.LocalSource;
+import utils.Tools.Path.PathResolver;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ContentParser extends SolidityBaseListener {
     FileNode fn;
-    ContentNode contentNode = new ContentNode();
+    Content content = new Content();
 
+
+/*    Source Parser Part    */
     public ContentParser(FileNode fn){
         this.fn=fn;
     }
+
+    @Override
+    public void enterImportFile(SolidityParser.ImportFileContext ctx) {    //same as import all
+        Path sourcePath = PathResolver.resolveImportedPath(Paths.get(fn.path),ctx.stringLiteral().getText());
+        FileNode source_node= FileTree.findFileNode(sourcePath.toString());   //find if it is in the same directory
+        GlobalSource gs;
+        LocalSource s;
+        String alias;
+        if(ctx.identifier()==null){
+            if(source_node==null){   //source not found from the directory which means it is from the internet
+                gs = new GlobalSource(sourcePath,null);
+                fn.globalSourceList.add(gs);
+            } else {
+                s = new LocalSource(source_node,null);
+                fn.localSourceList.add(s);
+            }
+
+        }else { //with identifier
+            alias=ctx.identifier().getText().replaceAll("^\"|\"$", "");
+            if(source_node==null){
+                gs = new GlobalSource(sourcePath,alias);
+                fn.globalSourceList.add(gs);
+            }else{
+                s = new LocalSource(source_node,alias);
+                fn.localSourceList.add(s);
+            }
+        }
+    }
+
+    @Override
+    public void enterImportFileAsSymbol(SolidityParser.ImportFileAsSymbolContext ctx) {
+        Path sourcePath = PathResolver.resolveImportedPath(Paths.get(fn.path),ctx.stringLiteral().getText());
+        FileNode source_node=FileTree.findFileNode(sourcePath.toString());   //find if it is in the same directory
+        GlobalSource gs;
+        LocalSource s;
+
+        if(ctx.identifier()==null){ //import file by default identifier
+            if(source_node==null&&ctx.importAllOrNot().identifier()==null){
+                //source not found from the directory which means it is from the internet
+                //import all
+                gs = new GlobalSource(sourcePath,null);
+                fn.globalSourceList.add(gs);
+            } else if(source_node==null){
+                //source not found from the directory which means it is from the internet
+                //import one contract or library only
+                gs = new GlobalSource(sourcePath,null);
+                gs.addModule(ctx.importAllOrNot().identifier().getText(),null);
+                fn.globalSourceList.add(gs);
+            } else if(ctx.importAllOrNot().identifier()==null){
+                //source can be found from the directory
+                //import all
+                s = new LocalSource(source_node,null);
+                fn.localSourceList.add(s);
+            }else{
+                //source can be found from the directory
+                //import one contract or library only
+                s = new LocalSource(source_node,null);
+                s.addModule(ctx.importAllOrNot().identifier().getText(),null);
+                fn.localSourceList.add(s);
+            }
+        }else{  //import file by using identifier
+            if(source_node==null&&ctx.importAllOrNot().identifier()==null){
+                //source not found from the directory which means it is from the internet
+                //import all
+                gs = new GlobalSource(sourcePath,ctx.identifier().getText());
+                fn.globalSourceList.add(gs);
+            } else if(source_node==null){
+                //source not found from the directory which means it is from the internet
+                //import one contract or library only
+                gs = new GlobalSource(sourcePath,ctx.identifier().getText());
+                gs.addModule(ctx.importAllOrNot().identifier().getText(),null);
+                fn.globalSourceList.add(gs);
+            } else if(ctx.importAllOrNot().identifier()==null){
+                //source can be found from the directory
+                //import all
+                s = new LocalSource(source_node,ctx.identifier().getText());
+                fn.localSourceList.add(s);
+            }else{
+                //source can be found from the directory
+                //import one contract or library only
+                s = new LocalSource(source_node,ctx.identifier().getText());
+                s.addModule(ctx.importAllOrNot().identifier().getText(),null);
+                fn.localSourceList.add(s);
+            }
+        }
+
+    }
+
+    @Override
+    public void enterImportFileFrom(SolidityParser.ImportFileFromContext ctx) {
+        Path sourcePath = PathResolver.resolveImportedPath(Paths.get(fn.path),ctx.stringLiteral().getText());
+        FileNode source_node=FileTree.findFileNode(sourcePath.toString());   //find if it is in the same directory
+        GlobalSource gs;
+        LocalSource s;
+
+        if(source_node==null){
+            gs = new GlobalSource(sourcePath,null);
+            ctx.importDeclaration().forEach(x->{
+                if(x.identifier(1)==null){  //contract or library without identifier
+                    gs.addModule(x.identifier(0).getText(),null);
+                }else{
+                    gs.addModule(x.identifier(0).getText(),x.identifier(1).getText());
+                }
+            });
+            fn.globalSourceList.add(gs);
+        }else{
+            s=new LocalSource(source_node,null);
+            ctx.importDeclaration().forEach(x->{
+                if(x.identifier(1)==null){  //contract or library without identifier
+                    s.addModule(x.identifier(0).getText(),null);
+                }else{
+                    s.addModule(x.identifier(0).getText(),x.identifier(1).getText());
+                }
+            });
+            fn.localSourceList.add(s);
+        }
+    }
+
+
+/*    Content Parser Part    */
 
     private void parseInsideContract(Instance n, ParserRuleContext ctx){
         int count=0;
@@ -65,8 +195,9 @@ public class ContentParser extends SolidityBaseListener {
                 if(tmp.functionDefinition().returnsParameters()!=null)f.returnParameterList=functionReturnsParameterListContext2ParameterList(tmp.functionDefinition().returnsParameters().parameterList());
 
                 n.addFunction(f);
-
                 System.out.println(f.alias);
+                System.out.println("Identifier: ");
+                getFunctionCall(tmp.functionDefinition());
             }else if(tmp.functionDefinition()!=null){   //constructor
                 Function f;
                 String stateMutability=null;
@@ -140,7 +271,7 @@ public class ContentParser extends SolidityBaseListener {
     @Override
     public void enterContractDefinition(SolidityParser.ContractDefinitionContext ctx) {
         Contract c = new Contract(ctx.identifier().getText(),ctx);
-        contentNode.add(c);
+        content.contractList.add(c);
         ctx.inheritanceSpecifier().forEach(x->{
             c.addInheritance(x.getText());
         });
@@ -151,7 +282,7 @@ public class ContentParser extends SolidityBaseListener {
     @Override
     public void enterLibraryDefinition(SolidityParser.LibraryDefinitionContext ctx) {
         Library l = new Library(ctx.identifier().getText(),ctx);
-        contentNode.add(l);
+        content.libraryList.add(l);
 
         parseInsideContract(l,ctx);
     }
@@ -159,7 +290,7 @@ public class ContentParser extends SolidityBaseListener {
     @Override
     public void enterInterfaceDefinition(SolidityParser.InterfaceDefinitionContext ctx) {
         Interface in = new Interface(ctx.identifier().getText(),ctx);
-        contentNode.add(in);
+        content.interfaceList.add(in);
         ctx.inheritanceSpecifier().forEach(x->{
             in.addInheritance(x.getText());
         });
@@ -255,6 +386,31 @@ public class ContentParser extends SolidityBaseListener {
         }
         return stateVariableList;
 
+    }
+
+    private static void getFunctionCall(SolidityParser.FunctionDefinitionContext ctx){
+        if(ctx.block()!=null){
+            ctx.block().statement().forEach(x->{
+                while(x.expressionStatement()!=null&&x.expressionStatement().expression()!=null){
+                }
+
+
+            });
+        }
+    }
+
+    private static void getExpression(SolidityParser.ExpressionContext ctx){
+        Stack<SolidityParser.ExpressionContext> exp = new Stack<>();
+        SolidityParser.ExpressionContext e;
+        exp.add(ctx);
+        while(exp!=null){
+            e=exp.pop();
+            System.out.println(e.getText());
+            Iterator<SolidityParser.ExpressionContext> t = e.expression().iterator();
+            while(t.hasNext()){
+                exp.push(t.next());
+            }
+        }
     }
 
 }

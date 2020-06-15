@@ -64,7 +64,6 @@ public class SourceParser extends SolidityBaseListener {
     List<GlobalSource>globalSourceList = new ArrayList<>();
 
     public SourceParser(FileNode fn){
-        fn.sourceParser =this;
         self=fn;
     }
 

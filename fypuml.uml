@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement />
+  <nodes>
+    <node x="1218.0795454545455" y="590.0">parser.ContextSensitiveParser</node>
+    <node x="2044.0795454545455" y="950.0">report.CFG</node>
+    <node x="1826.0795454545455" y="716.0">report.ExposureReport</node>
+    <node x="1164.3392158189035" y="273.0">parser.Base</node>
+    <node x="172.0795454545455" y="546.0">parser.SourceParser</node>
+    <node x="0.0" y="197.0">parser.SourceParser.GlobalSource</node>
+    <node x="262.0" y="197.0">parser.SourceParser.Source</node>
+    <node x="603.0795454545455" y="458.0">parser.ContentParser</node>
+    <node x="287.2157309704186" y="0.0">parser.SourceParser.SourceModule</node>
+    <node x="1140.0845102813855" y="939.0">parser.ProjectParser</node>
+    <node x="1695.0795454545455" y="644.0">config</node>
+    <node x="1627.8345102813855" y="1064.0">Main</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="Main" target="report.ExposureReport">
+      <point x="39.25" y="-91.5" />
+      <point x="1824.0845102813855" y="1034.0" />
+      <point x="1913.5795454545455" y="1034.0" />
+      <point x="0.0" y="26.5" />
+    </edge>
+    <edge source="Main" target="config">
+      <point x="-39.25" y="-91.5" />
+      <point x="1745.5845102813855" y="1044.0" />
+      <point x="1792.5795454545455" y="1044.0" />
+      <point x="32.5" y="14.5" />
+    </edge>
+    <edge source="parser.ProjectParser" target="config">
+      <point x="107.55555555555566" y="-37.5" />
+      <point x="1368.6400658369412" y="919.0" />
+      <point x="1727.5795454545455" y="919.0" />
+      <point x="-32.5" y="14.5" />
+    </edge>
+    <edge source="parser.SourceParser.Source" target="parser.SourceParser.SourceModule">
+      <point x="-1.4210854715202004E-14" y="-90.5" />
+      <point x="383.0" y="177.0" />
+      <point x="436.3585881132757" y="177.0" />
+      <point x="33.14285714285711" y="58.5" />
+    </edge>
+    <edge source="Main" target="report.CFG">
+      <point x="117.75" y="-91.5" />
+      <point x="1902.5845102813855" y="1044.0" />
+      <point x="2154.5795454545455" y="1044.0" />
+      <point x="0.0" y="26.5" />
+    </edge>
+    <edge source="parser.Base" target="parser.Base">
+      <point x="-52.199999999999996" y="14.5" />
+      <point x="1170.1392158189035" y="322.0" />
+      <point x="1144.3392158189035" y="322.0" />
+      <point x="1144.3392158189035" y="294.75" />
+      <point x="-58.0" y="7.25" />
+    </edge>
+    <edge source="parser.SourceParser.GlobalSource" target="parser.SourceParser">
+      <point x="90.75" y="90.5" />
+      <point x="211.75" y="408.0" />
+      <point x="302.85227272727275" y="408.0" />
+      <point x="-74.72727272727275" y="-112.5" />
+    </edge>
+    <edge source="parser.SourceParser.GlobalSource" target="parser.SourceParser.SourceModule">
+      <point x="0.0" y="-90.5" />
+      <point x="121.0" y="147.0" />
+      <point x="336.93001668470424" y="147.0" />
+      <point x="-66.28571428571428" y="58.5" />
+    </edge>
+    <edge source="Main" target="parser.ProjectParser">
+      <point x="-117.75" y="-91.5" />
+      <point x="1667.0845102813855" y="1044.0" />
+      <point x="1261.0845102813855" y="1044.0" />
+      <point x="0.0" y="37.5" />
+    </edge>
+    <edge source="parser.SourceParser" target="parser.Base">
+      <point x="186.81818181818187" y="-112.5" />
+      <point x="564.3977272727274" y="418.0" />
+      <point x="1204.9392158189034" y="418.0" />
+      <point x="-17.40000000000009" y="14.5" />
+    </edge>
+    <edge source="parser.ContentParser" target="parser.Base">
+      <point x="-148.75" y="-200.5" />
+      <point x="751.8295454545455" y="428.0" />
+      <point x="1216.5392158189036" y="428.0" />
+      <point x="-5.7999999999999545" y="14.5" />
+    </edge>
+    <edge source="parser.ProjectParser" target="parser.Base">
+      <point x="80.66666666666674" y="-37.5" />
+      <point x="1341.751176948052" y="909.0" />
+      <point x="1684.5795454545455" y="909.0" />
+      <point x="1684.5795454545455" y="408.0" />
+      <point x="1274.5392158189036" y="408.0" />
+      <point x="52.200000000000045" y="14.5" />
+    </edge>
+    <edge source="parser.SourceParser.Source" target="parser.SourceParser">
+      <point x="90.75" y="90.5" />
+      <point x="473.75" y="438.0" />
+      <point x="452.30681818181824" y="438.0" />
+      <point x="74.72727272727275" y="-112.5" />
+    </edge>
+    <edge source="parser.SourceParser.SourceModule" target="parser.SourceParser">
+      <point x="99.42857142857144" y="58.5" />
+      <point x="502.64430239899" y="177.0" />
+      <point x="669.9086489898989" y="177.0" />
+      <point x="669.9086489898989" y="398.0" />
+      <point x="489.6704545454546" y="398.0" />
+      <point x="112.09090909090912" y="-112.5" />
+    </edge>
+    <edge source="parser.ProjectParser" target="parser.ContentParser">
+      <point x="-53.77777777777783" y="-37.5" />
+      <point x="1207.3067325036077" y="899.0" />
+      <point x="751.8295454545455" y="899.0" />
+      <point x="-148.75" y="200.5" />
+    </edge>
+    <edge source="parser.SourceParser" target="parser.SourceParser.Source">
+      <point x="-37.363636363636374" y="-112.5" />
+      <point x="340.2159090909091" y="398.0" />
+      <point x="292.25" y="398.0" />
+      <point x="-90.75" y="90.5" />
+    </edge>
+    <edge source="parser.ContextSensitiveParser" target="parser.Base">
+      <point x="-111.25" y="-68.5" />
+      <point x="1329.3295454545455" y="438.0" />
+      <point x="1239.7392158189036" y="438.0" />
+      <point x="17.40000000000009" y="14.5" />
+    </edge>
+    <edge source="parser.ProjectParser" target="parser.ContextSensitiveParser">
+      <point x="26.888888888888914" y="-37.5" />
+      <point x="1287.9733991702742" y="889.0" />
+      <point x="1551.8295454545455" y="889.0" />
+      <point x="111.25" y="68.5" />
+    </edge>
+    <edge source="parser.ProjectParser" target="parser.SourceParser">
+      <point x="-80.66666666666652" y="-37.5" />
+      <point x="1180.417843614719" y="909.0" />
+      <point x="480.3295454545455" y="909.0" />
+      <point x="102.75" y="112.5" />
+    </edge>
+    <edge source="parser.SourceParser" target="parser.SourceParser.GlobalSource">
+      <point x="-149.4545454545455" y="-112.5" />
+      <point x="228.125" y="428.0" />
+      <point x="90.75" y="428.0" />
+      <point x="-30.25" y="90.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="469.5" y="356.0" />
+  <SelectedNodes>
+    <node>report.ExposureReport</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Constructors</Category>
+    <Category>Methods</Category>
+    <Category>Properties</Category>
+    <Category>Inner Classes</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
