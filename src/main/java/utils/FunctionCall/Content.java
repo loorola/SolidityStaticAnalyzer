@@ -1,8 +1,8 @@
 package utils.FunctionCall;
 
-import utils.FunctionCall.ContractNodeType.Contract;
-import utils.FunctionCall.ContractNodeType.Interface;
-import utils.FunctionCall.ContractNodeType.Library;
+import utils.FunctionCall.ContractNodeType.SolidityClassDefinition.Contract;
+import utils.FunctionCall.ContractNodeType.SolidityClassDefinition.Interface;
+import utils.FunctionCall.ContractNodeType.SolidityClassDefinition.Library;
 
 import java.util.ArrayList;
 import java.util.List;

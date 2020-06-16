@@ -13,6 +13,7 @@ public class Function extends BaseFunction{
     public List<String> modifierList = new ArrayList<>();
     public List<SolidityParser.ExpressionContext> modifierWithParameterList = new ArrayList<>();
     public List<String> returnParameterList = new ArrayList<>();
+    public List<Expression> expressionList = new ArrayList<>();
 
     public Function(String alias, SolidityParser.BlockContext block, String stateMutability, String visibleType){
         this.alias = alias;

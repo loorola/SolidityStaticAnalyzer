@@ -1,4 +1,4 @@
-package utils.FunctionCall.ContractNodeType;
+package utils.FunctionCall.ContractNodeType.SolidityClassDefinition;
 
 import parser.Base.SolidityParser;
 

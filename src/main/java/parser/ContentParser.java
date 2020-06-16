@@ -8,6 +8,10 @@ import utils.File.FileTree;
 import utils.FunctionCall.Content;
 import utils.FunctionCall.ContractNodeType.*;
 import utils.FunctionCall.ContractNodeType.Enum;
+import utils.FunctionCall.ContractNodeType.SolidityClassDefinition.Contract;
+import utils.FunctionCall.ContractNodeType.SolidityClassDefinition.Instance;
+import utils.FunctionCall.ContractNodeType.SolidityClassDefinition.Interface;
+import utils.FunctionCall.ContractNodeType.SolidityClassDefinition.Library;
 import utils.Source.GlobalSource;
 import utils.Source.LocalSource;
 import utils.Tools.Path.PathResolver;
@@ -391,7 +395,8 @@ public class ContentParser extends SolidityBaseListener {
     private static void getFunctionCall(SolidityParser.FunctionDefinitionContext ctx){
         if(ctx.block()!=null){
             ctx.block().statement().forEach(x->{
-                while(x.expressionStatement()!=null&&x.expressionStatement().expression()!=null){
+                if(x.expressionStatement()!=null&&x.expressionStatement().expression()!=null){
+                    getExpression(x.expressionStatement().expression());
                 }
 
 
@@ -403,14 +408,18 @@ public class ContentParser extends SolidityBaseListener {
         Stack<SolidityParser.ExpressionContext> exp = new Stack<>();
         SolidityParser.ExpressionContext e;
         exp.add(ctx);
-        while(exp!=null){
+        while(!exp.isEmpty()){
             e=exp.pop();
             System.out.println(e.getText());
-            Iterator<SolidityParser.ExpressionContext> t = e.expression().iterator();
-            while(t.hasNext()){
-                exp.push(t.next());
+            Iterator<SolidityParser.ExpressionContext>tmp = e.expression().iterator();
+            while(tmp.hasNext()){
+                exp.push(tmp.next());
             }
         }
+        System.out.println("../../../../");
     }
 
+    private static void handleExpression(){
+
+    }
 }

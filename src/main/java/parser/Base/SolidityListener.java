@@ -1,5 +1,4 @@
 package parser.Base;
-
 // Generated from Solidity.g4 by ANTLR 4.7.1
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -648,6 +647,16 @@ public interface SolidityListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNewDynamicArray(SolidityParser.NewDynamicArrayContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SolidityParser#equalOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterEqualOperator(SolidityParser.EqualOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#equalOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitEqualOperator(SolidityParser.EqualOperatorContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SolidityParser#lvalueOperator}.
 	 * @param ctx the parse tree

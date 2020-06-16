@@ -89,7 +89,7 @@ variableDeclaration
     : typeName (storageLocation? identifier)? ;
 
 stateVariableDeclaration : typeName (visibleType | constantType)?
-    identifier (',' identifier?)? ('=' expression)? ';' ;
+    identifier (',' identifier?)* ('=' expression)? ';' ;
 
 fallbackIdentifier: ('function' | 'fallback' | 'receive');
 
@@ -223,7 +223,7 @@ expression
     | expression '&&' expression
     | expression '||' expression
     | expression '?' expression ':' expression
-    | expression ('=' | lvalueOperator) expression
+    | expression (equalOperator | lvalueOperator) expression
     | varDeclaration
     | variableDeclaration
     ;
@@ -236,7 +236,11 @@ arrayRange
     | expression ':' expression
     ;
 
-newDynamicArray : 'new' (typeName '[' ']' | 'string' | 'bytes') ('(' expression ')')? ;
+newDynamicArray : 'new' (typeName '[' ']' | dynamicType) ('(' expression ')')? ;
+
+equalOperator: '=';
+
+dynamicType: 'string'|'bytes';
 
 lvalueOperator
     : '|=' | '^=' | '&='

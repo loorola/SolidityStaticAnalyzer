@@ -785,6 +785,18 @@ public class SolidityBaseListener implements SolidityListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterEqualOperator(SolidityParser.EqualOperatorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEqualOperator(SolidityParser.EqualOperatorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterLvalueOperator(SolidityParser.LvalueOperatorContext ctx) { }
 	/**
 	 * {@inheritDoc}

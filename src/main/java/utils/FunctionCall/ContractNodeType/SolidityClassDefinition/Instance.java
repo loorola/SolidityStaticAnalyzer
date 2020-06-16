@@ -1,11 +1,12 @@
-package utils.FunctionCall.ContractNodeType;
+package utils.FunctionCall.ContractNodeType.SolidityClassDefinition;
 
-import parser.Base.SolidityParser;
+import utils.FunctionCall.ContractNodeType.*;
+import utils.FunctionCall.ContractNodeType.Enum;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Instance extends BaseNode{
+public class Instance extends BaseNode {
     public List<String> eventList = new ArrayList<>();
     public List<UsingFor>usingForList=new ArrayList<>();
     public List<Struct>structList = new ArrayList<>();
@@ -13,7 +14,7 @@ public class Instance extends BaseNode{
     public List<StateVariable>stateVariableList = new ArrayList<>();
     public List<FallbackFunction>fallbackFunctionList = new ArrayList<>();
     public List<Function>functionList = new ArrayList<>();
-    public List<Enum>enumList = new ArrayList<>();
+    public List<utils.FunctionCall.ContractNodeType.Enum>enumList = new ArrayList<>();
 
     public void addEvent(String event){
         eventList.add(event);
