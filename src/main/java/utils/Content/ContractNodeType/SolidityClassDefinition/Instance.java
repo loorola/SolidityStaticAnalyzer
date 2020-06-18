@@ -1,7 +1,10 @@
-package utils.FunctionCall.ContractNodeType.SolidityClassDefinition;
+package utils.Content.ContractNodeType.SolidityClassDefinition;
 
-import utils.FunctionCall.ContractNodeType.*;
-import utils.FunctionCall.ContractNodeType.Enum;
+import utils.Content.ContractNodeType.BaseNode;
+import utils.Content.ContractNodeType.BasicContractDefinition.*;
+import utils.Content.ContractNodeType.BasicContractDefinition.Enum;
+import utils.Content.ContractNodeType.BasicContractDefinition.Function;
+import utils.Content.ContractNodeType.StateVariableDeclaration.StateVariableDeclaration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +14,10 @@ public class Instance extends BaseNode {
     public List<UsingFor>usingForList=new ArrayList<>();
     public List<Struct>structList = new ArrayList<>();
     public List<Modifier>modifierList = new ArrayList<>();
-    public List<StateVariable>stateVariableList = new ArrayList<>();
+    public List<StateVariableDeclaration> stateVariableDeclarationList = new ArrayList<>();
     public List<FallbackFunction>fallbackFunctionList = new ArrayList<>();
     public List<Function>functionList = new ArrayList<>();
-    public List<utils.FunctionCall.ContractNodeType.Enum>enumList = new ArrayList<>();
+    public List<Enum>enumList = new ArrayList<>();
 
     public void addEvent(String event){
         eventList.add(event);
@@ -28,8 +31,8 @@ public class Instance extends BaseNode {
         modifierList.add(modifier);
     }
 
-    public void addStateVariable(StateVariable variable){
-        stateVariableList.add(variable);
+    public void addStateVariable(StateVariableDeclaration variable){
+        stateVariableDeclarationList.add(variable);
     }
 
     public void addFallbackFunction(FallbackFunction fallbackFunction){

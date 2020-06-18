@@ -1,14 +1,14 @@
-package utils.FunctionCall.ContractNodeType.SolidityClassDefinition;
+package utils.Content.ContractNodeType.SolidityClassDefinition;
 
 import parser.Base.SolidityParser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Contract extends Instance {
-    SolidityParser.ContractDefinitionContext ctx;
+public class Interface extends Instance{
+    SolidityParser.InterfaceDefinitionContext ctx;
     public List<String> inheritanceList = new ArrayList<>();
-    public Contract(String alias, SolidityParser.ContractDefinitionContext ctx){
+    public Interface(String alias, SolidityParser.InterfaceDefinitionContext ctx){
         this.alias = alias;
         this.ctx=ctx;
     }

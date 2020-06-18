@@ -1,6 +1,8 @@
-package utils.FunctionCall.ContractNodeType;
+package utils.Content.ContractNodeType.BasicContractDefinition;
 
-public class Parameter extends BaseNode{
+import utils.Content.ContractNodeType.BaseNode;
+
+public class Parameter extends BaseNode {
     String dataType;
     String storageLocation;
     public Parameter(String alias,String dataType, String storageLocation){

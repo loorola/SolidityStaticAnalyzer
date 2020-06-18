@@ -1,6 +1,6 @@
-package utils.FunctionCall.ContractNodeType;
+package utils.Content.ContractNodeType.BasicContractDefinition;
 
-import utils.FunctionCall.ContractNodeType.BaseNode;
+import utils.Content.ContractNodeType.BaseNode;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -11,7 +11,7 @@ public class ContextSensitiveParser {
         this.fn=fn;
     }
 
-    public static void GetFunctionCallsInFunction(){
+    public static void getFileContent(){
 
     }
 

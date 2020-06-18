@@ -1,9 +1,8 @@
-package utils.FunctionCall.ContractNodeType;
+package utils.Content.ContractNodeType.BasicContractDefinition;
 
-import java.util.ArrayList;
-import java.util.List;
+import utils.Content.ContractNodeType.BaseNode;
 
-public class UsingFor extends BaseNode{
+public class UsingFor extends BaseNode {
     String dataTypeName;
     String alias;
     public UsingFor(String alias, String dataTypeName){

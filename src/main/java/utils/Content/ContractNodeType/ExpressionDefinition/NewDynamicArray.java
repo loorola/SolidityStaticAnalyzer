@@ -1,7 +1,7 @@
-package utils.FunctionCall.ContractNodeType.ExpressionDefinition;
+package utils.Content.ContractNodeType.ExpressionDefinition;
 
 import parser.Base.SolidityParser;
-import utils.FunctionCall.ContractNodeType.Expression;
+import utils.Content.ContractNodeType.BasicContractDefinition.Expression;
 
 public class NewDynamicArray extends Expression {
     String dataType;

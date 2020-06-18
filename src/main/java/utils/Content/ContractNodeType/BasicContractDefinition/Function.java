@@ -1,11 +1,13 @@
-package utils.FunctionCall.ContractNodeType;
+package utils.Content.ContractNodeType.BasicContractDefinition;
 
 import parser.Base.SolidityParser;
+import utils.Content.ContractNodeType.BasicContractDefinition.BaseFunction;
+import utils.Content.ContractNodeType.BasicContractDefinition.Expression;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Function extends BaseFunction{
+public class Function extends BaseFunction {
     SolidityParser.BlockContext block;
     public String stateMutability = null;
     public String visibleType;

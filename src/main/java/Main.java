@@ -32,7 +32,6 @@ public class Main {
             zip.stream().map(ZipEntry::getName).forEach((n)->{
                 Path tmp = Paths.get(n);
                 if(Files.isDirectory(tmp)){
-
                 }
                 if(FilenameUtils.isExtension(n,"sol")&&!tmp.subpath(0,1).toString().equals("__MACOSX"))System.out.println(n);
             });

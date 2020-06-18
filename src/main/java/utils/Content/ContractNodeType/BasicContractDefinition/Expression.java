@@ -1,14 +1,12 @@
-package utils.FunctionCall.ContractNodeType;
+package utils.Content.ContractNodeType.BasicContractDefinition;
 
 import parser.Base.SolidityParser;
-import utils.FunctionCall.ContractNodeType.ExpressionDefinition.Equality;
-import utils.FunctionCall.ContractNodeType.ExpressionDefinition.FunctionCall;
-import utils.FunctionCall.ContractNodeType.ExpressionDefinition.VariableDeclaration;
+import utils.Content.ContractNodeType.BaseNode;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Expression extends BaseNode{
+public class Expression extends BaseNode {
     public List<Expression> expressionList = new ArrayList<>();
     public int type;
     /*

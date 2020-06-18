@@ -1,11 +1,12 @@
-package utils.FunctionCall.ContractNodeType;
+package utils.Content.ContractNodeType.BasicContractDefinition;
 
 import parser.Base.SolidityParser;
+import utils.Content.ContractNodeType.BaseNode;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Struct extends BaseNode{
+public class Struct extends BaseNode {
     List<SolidityParser.VariableDeclarationContext> variableDeclarationContextList = new ArrayList<>();
 
     public Struct(String alias){

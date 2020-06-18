@@ -3,15 +3,20 @@ package parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import parser.Base.SolidityBaseListener;
 import parser.Base.SolidityParser;
+import utils.Content.ContractNodeType.BasicContractDefinition.Function;
+import utils.Content.ContractNodeType.ExpressionDefinition.VariableDeclaration;
+import utils.Content.ContractNodeType.StateVariableDeclaration.FunctionVariable;
+import utils.Content.ContractNodeType.StateVariableDeclaration.MappingVariable;
+import utils.Content.ContractNodeType.StateVariableDeclaration.PrimaryVariable;
+import utils.Content.ContractNodeType.StateVariableDeclaration.StateVariableDeclaration;
 import utils.File.FileNode;
 import utils.File.FileTree;
-import utils.FunctionCall.Content;
-import utils.FunctionCall.ContractNodeType.*;
-import utils.FunctionCall.ContractNodeType.Enum;
-import utils.FunctionCall.ContractNodeType.SolidityClassDefinition.Contract;
-import utils.FunctionCall.ContractNodeType.SolidityClassDefinition.Instance;
-import utils.FunctionCall.ContractNodeType.SolidityClassDefinition.Interface;
-import utils.FunctionCall.ContractNodeType.SolidityClassDefinition.Library;
+import utils.Content.ContractNodeType.BasicContractDefinition.*;
+import utils.Content.ContractNodeType.BasicContractDefinition.Enum;
+import utils.Content.ContractNodeType.SolidityClassDefinition.Contract;
+import utils.Content.ContractNodeType.SolidityClassDefinition.Instance;
+import utils.Content.ContractNodeType.SolidityClassDefinition.Interface;
+import utils.Content.ContractNodeType.SolidityClassDefinition.Library;
 import utils.Source.GlobalSource;
 import utils.Source.LocalSource;
 import utils.Tools.Path.PathResolver;
@@ -27,7 +32,6 @@ import java.util.stream.Stream;
 
 public class ContentParser extends SolidityBaseListener {
     FileNode fn;
-    Content content = new Content();
 
 
 /*    Source Parser Part    */
@@ -177,7 +181,7 @@ public class ContentParser extends SolidityBaseListener {
                 n.addStruct(s);
                 System.out.println(s.alias);
             }else if(tmp.stateVariableDeclaration()!=null){
-                n.stateVariableList = Stream.concat(n.stateVariableList.stream(),initMultipleStateVariable(tmp.stateVariableDeclaration()).stream()).collect(Collectors.toList());
+                //n.stateVariableDeclarationList = Stream.concat(n.stateVariableDeclarationList.stream(),initMultipleStateVariable(tmp.stateVariableDeclaration()).stream()).collect(Collectors.toList());
             } else if(tmp.modifierDefinition()!=null){
                 Modifier m = new Modifier(tmp.modifierDefinition().identifier().getText(),tmp.modifierDefinition().block());
                 if(tmp.modifierDefinition().parameterList()!=null){
@@ -201,7 +205,7 @@ public class ContentParser extends SolidityBaseListener {
                 n.addFunction(f);
                 System.out.println(f.alias);
                 System.out.println("Identifier: ");
-                getFunctionCall(tmp.functionDefinition());
+                //getFunctionCall(tmp.functionDefinition());
             }else if(tmp.functionDefinition()!=null){   //constructor
                 Function f;
                 String stateMutability=null;
@@ -275,7 +279,7 @@ public class ContentParser extends SolidityBaseListener {
     @Override
     public void enterContractDefinition(SolidityParser.ContractDefinitionContext ctx) {
         Contract c = new Contract(ctx.identifier().getText(),ctx);
-        content.contractList.add(c);
+        fn.fileContent.contractList.add(c);
         ctx.inheritanceSpecifier().forEach(x->{
             c.addInheritance(x.getText());
         });
@@ -286,7 +290,7 @@ public class ContentParser extends SolidityBaseListener {
     @Override
     public void enterLibraryDefinition(SolidityParser.LibraryDefinitionContext ctx) {
         Library l = new Library(ctx.identifier().getText(),ctx);
-        content.libraryList.add(l);
+        fn.fileContent.libraryList.add(l);
 
         parseInsideContract(l,ctx);
     }
@@ -294,14 +298,18 @@ public class ContentParser extends SolidityBaseListener {
     @Override
     public void enterInterfaceDefinition(SolidityParser.InterfaceDefinitionContext ctx) {
         Interface in = new Interface(ctx.identifier().getText(),ctx);
-        content.interfaceList.add(in);
+        fn.fileContent.interfaceList.add(in);
         ctx.inheritanceSpecifier().forEach(x->{
             in.addInheritance(x.getText());
         });
 
     }
 
-    private static List<Parameter> parameterContextList2ParameterList( SolidityParser.ParameterListContext ctx){
+
+    /*
+    * Function/Parameter/... Context to Object
+     */
+    private static List<Parameter> parameterContextList2ParameterList(SolidityParser.ParameterListContext ctx){
         List<Parameter> parameterList = new ArrayList<>();
         Parameter p;
         for(int i=0;i<ctx.parameter().size();i++){
@@ -346,63 +354,48 @@ public class ContentParser extends SolidityBaseListener {
     }
 
 
-    private static List<StateVariable> initMultipleStateVariable(SolidityParser.StateVariableDeclarationContext ctx){
-        List<StateVariable>stateVariableList= new ArrayList<>();
-        StateVariable v;
+    private static List<StateVariableDeclaration> initMultipleStateVariable(SolidityParser.StateVariableDeclarationContext ctx){
+        List<StateVariableDeclaration> stateVariableDeclarationList = new ArrayList<>();
+        StateVariableDeclaration v;
 
         String visible=null;
-        if(ctx.visibleType()!=null&&ctx.visibleType().size()!=0){
-            visible=ctx.visibleType(0).getText();
+        if(ctx.visibleType()!=null){
+            visible=ctx.visibleType().getText();
         }
 
         boolean isConstant=false;
-        if(ctx.constantType()!=null&&ctx.constantType().size()!=0){
+        if(ctx.constantType()!=null){
             isConstant=true;
         }
 
-        SolidityParser.ExpressionContext e = null;
-        if(ctx.expression()!=null){
-            e=ctx.expression();
-        }
+        Expression e = null;
+        if(ctx.expression()!=null)e=expressionContext2Expression(ctx.expression());
 
         for(int i=0;i<ctx.identifier().size();i++){
-            v=new StateVariable(ctx.identifier(i).getText(),visible,isConstant,e);
             if(ctx.typeName().mappingSt()!=null){
-                v.initMapping(ctx.typeName().mappingSt().typeName(0).getText(), ctx.typeName().mappingSt().typeName(1).getText());
+                v=new MappingVariable(ctx.identifier(i).getText(),ctx.typeName().mappingSt().typeName(0).getText(), ctx.typeName().mappingSt().typeName(1).getText(),visible, isConstant,e);
             }else if(ctx.typeName().functionTypeName()!=null){
                 SolidityParser.FunctionTypeNameContext t = ctx.typeName().functionTypeName();
-                String vt = null;
-                String stateMutability = null;
-                if(t.visibleType()!=null&&t.visibleType().size()!=0){
-                    vt=t.visibleType(0).getText();
-                }
-                if(t.stateMutability()!=null&&t.stateMutability().size()!=0){
-                    stateMutability = t.stateMutability(0).getText();
-                }
-                List<SolidityParser.ParameterListContext> parameterListContexts = ctx.typeName().functionTypeName().parameterList();
-                v.initFunction(stateMutability,vt);
-                if(ctx.typeName().functionTypeName().parameterList()!=null&&ctx.typeName().functionTypeName().parameterList().size()!=0) v.f.returnParameterList=functionReturnsParameterListContext2ParameterList(ctx.typeName().functionTypeName().parameterList(1));
-                v.f.parameterList=parameterContextList2ParameterList(ctx.typeName().functionTypeName().parameterList(0));
+                List<SolidityParser.ParameterListContext> parameterListContexts = t.parameterList();
+                String fv = null;
+                String fs = null;
+                if(t.visibleType().size()!=0) fv = t.visibleType(0).getText();
+                if(t.stateMutability().size()!=0) fs = t.stateMutability(0).getText();
+                v=new FunctionVariable(ctx.identifier(i).getText(), visible, fs, fv, isConstant, e);
+                if(ctx.typeName().functionTypeName().parameterList()!=null&&ctx.typeName().functionTypeName().parameterList().size()!=0) ((FunctionVariable) v).returnParameterList=functionReturnsParameterListContext2ParameterList(ctx.typeName().functionTypeName().parameterList(1));
+                ((FunctionVariable) v).parameterList=parameterContextList2ParameterList(ctx.typeName().functionTypeName().parameterList(0));
             }else{
-                v.initNormal(ctx.typeName().getText());
+                v= new PrimaryVariable(ctx.identifier(i).getText(), ctx.typeName().getText(), visible, isConstant, e);//v.initNormal(ctx.typeName().getText());
             }
-            stateVariableList.add(v);
+            stateVariableDeclarationList.add(v);
         }
-        return stateVariableList;
+
+        return stateVariableDeclarationList;
 
     }
 
-    private static void getFunctionCall(SolidityParser.FunctionDefinitionContext ctx){
-        if(ctx.block()!=null){
-            ctx.block().statement().forEach(x->{
-                if(x.expressionStatement()!=null&&x.expressionStatement().expression()!=null){
-                    getExpression(x.expressionStatement().expression());
-                }
 
-
-            });
-        }
-    }
+    //Expression
 
     private static void getExpression(SolidityParser.ExpressionContext ctx){
         Stack<SolidityParser.ExpressionContext> exp = new Stack<>();
@@ -419,7 +412,55 @@ public class ContentParser extends SolidityBaseListener {
         System.out.println("../../../../");
     }
 
-    private static void handleExpression(){
+    private static Expression expressionContext2Expression(SolidityParser.ExpressionContext ctx){
+        Expression e=null;
+        if(ctx.twoPlusMinusOperator()!=null){
 
+        }
+        return e;
     }
+
+    private static Expression handleEquality(SolidityParser.ExpressionContext ctx){
+        Expression e=null;
+        if(ctx.twoPlusMinusOperator()!=null||ctx.equalOperator()!=null||ctx.lvalueOperator()!=null){
+
+            Stack<SolidityParser.ExpressionContext> s = new Stack<>();
+            s.push(ctx);
+            while(!s.isEmpty()){
+
+            }
+        }
+
+        return e;
+    }
+
+    private static Expression getFunctionCall(SolidityParser.ExpressionContext ctx){
+        Expression e = null;
+        return e;
+    }
+
+    private static Expression getNewDynamicArray(SolidityParser.ExpressionContext ctx){
+        Expression e = null;
+        return e;
+    }
+
+    private static Expression getStaticArray(SolidityParser.ExpressionContext ctx){
+        Expression e = null;
+        return e;
+    }
+
+    private static Expression getVariableDeclaration(SolidityParser.ExpressionContext ctx){
+        Expression e = null;
+        if(ctx.variableDeclaration()!=null){
+            if(ctx.variableDeclaration().storageLocation()!=null){
+                e=new VariableDeclaration(ctx.variableDeclaration().typeName().getText(),ctx.variableDeclaration().storageLocation().getText(), ctx.variableDeclaration().identifier().getText(), ctx);
+            }else if(ctx.variableDeclaration().identifier()!=null){
+                e=new VariableDeclaration(ctx.variableDeclaration().typeName().getText(),null, ctx.variableDeclaration().identifier().getText(), ctx);
+            }else{
+                e=new VariableDeclaration(ctx.variableDeclaration().typeName().getText(),null, null, ctx);
+            }
+        }
+        return e;
+    }
+
 }

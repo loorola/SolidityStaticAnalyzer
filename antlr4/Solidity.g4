@@ -130,7 +130,7 @@ payableType : 'payable' ;
 typeName
     : '(' typeName ')' // ignored parentheses for typeConversion, e.g. uint x = (uint)(y);
     | elementaryTypeName
-    | userDefinedTypeName
+    | userDefinedTypeName   //enum
     | mappingSt
     | typeName '[' expression? ']'
     | functionTypeName

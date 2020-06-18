@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import parser.SourceParser;
+import utils.Content.FileContent;
 import utils.Source.GlobalSource;
 import utils.Source.LocalSource;
 
@@ -11,10 +12,9 @@ public class FileNode {
     public String path;
     public List<FileNode> children;
     public FileNode parent;
-    //public List<ContentNode> contentNodeList = new ArrayList<>();
     public List<LocalSource> localSourceList = new ArrayList<>();
     public List<GlobalSource> globalSourceList = new ArrayList<>();
-
+    public FileContent fileContent = new FileContent();
     public FileNode(){
         path=null;
         parent=null;
