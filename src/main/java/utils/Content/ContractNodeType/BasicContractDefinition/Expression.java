@@ -16,13 +16,13 @@ public class Expression extends BaseNode {
     3: EnvironmentalVariable /
     4: FunctionCall
     5: FunctionIdentifier
-    7: tupleExpression
-    8: TypeExpression
-    9: PrimaryExpression
-    10: TypeConversion
-    11: OperatorExpression
-    12: ConditionalDeclaration
-    13: VariableDeclaration
+    6: tupleExpression
+    7: TypeExpression
+    8: PrimaryExpression
+    9: TypeConversion
+    10: OperatorExpression
+    11: ConditionalDeclaration
+    12: VariableDeclaration
      */
     public SolidityParser.ExpressionContext expressionContext = null;
 
