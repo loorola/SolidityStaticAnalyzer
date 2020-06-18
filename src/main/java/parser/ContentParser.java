@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import parser.Base.SolidityBaseListener;
 import parser.Base.SolidityParser;
 import utils.Content.ContractNodeType.BasicContractDefinition.Function;
+import utils.Content.ContractNodeType.ExpressionDefinition.NewDynamicArray;
 import utils.Content.ContractNodeType.ExpressionDefinition.VariableDeclaration;
 import utils.Content.ContractNodeType.StateVariableDeclaration.FunctionVariable;
 import utils.Content.ContractNodeType.StateVariableDeclaration.MappingVariable;
@@ -441,11 +442,19 @@ public class ContentParser extends SolidityBaseListener {
 
     private static Expression getNewDynamicArray(SolidityParser.ExpressionContext ctx){
         Expression e = null;
+        if(ctx.newDynamicArray()!=null){
+            if(ctx.newDynamicArray().dynamicType()!=null){
+                e=new NewDynamicArray(ctx.newDynamicArray().dynamicType().getText(), true, ctx);
+            }else e = new NewDynamicArray(ctx.newDynamicArray().typeName().getText(), false,ctx);
+        }
         return e;
     }
 
     private static Expression getStaticArray(SolidityParser.ExpressionContext ctx){
         Expression e = null;
+        if(ctx.arrayRange()!=null){
+
+        }
         return e;
     }
 

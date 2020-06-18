@@ -4,8 +4,16 @@ import parser.Base.SolidityParser;
 import utils.Content.ContractNodeType.BasicContractDefinition.Expression;
 
 public class StaticArray extends Expression {
-    public StaticArray(SolidityParser.ExpressionContext ctx, Expression e) {
+    boolean hasColon;
+    Expression left;
+    Expression right;
+
+    Expression front;
+    public StaticArray(boolean hasColon, Expression e1, Expression e2, Expression e3, SolidityParser.ExpressionContext ctx) {
         super(ctx, 1);
-        expressionList.add(e);
+        this.hasColon=hasColon;
+        this.left=e1;
+        this.right=e2;
+        this.front = e3;
     }
 }

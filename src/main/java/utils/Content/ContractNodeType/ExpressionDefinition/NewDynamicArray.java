@@ -9,6 +9,8 @@ public class NewDynamicArray extends Expression {
 
     public NewDynamicArray(String dataType, boolean isDynamicType, SolidityParser.ExpressionContext ctx) {
         super(ctx, 2);
+        this.dataType = dataType;
+        this.isDynamicType=isDynamicType;
     }
 
     /*

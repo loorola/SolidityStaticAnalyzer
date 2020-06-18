@@ -231,10 +231,12 @@ expression
 
 arrayRange
     : expression
-    | expression ':'
-    | ':' expression
-    | expression ':' expression
+    | expression colonOperator
+    | colonOperator expression
+    | expression ':' expression //splitting
     ;
+
+colonOperator: ':';
 
 newDynamicArray : 'new' (typeName '[' ']' | dynamicType) ('(' expression ')')? ;
 

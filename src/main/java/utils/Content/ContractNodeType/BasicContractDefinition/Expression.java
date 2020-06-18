@@ -12,7 +12,7 @@ public class Expression extends BaseNode {
     /*
     0: Equality
     1: Static Array
-    2: New Dynamic Array
+    2: New Dynamic Array /
     3: EnvironmentalVariable
     4: ArrayLength|ContractBalance
     5: FunctionCall
