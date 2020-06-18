@@ -197,8 +197,7 @@ expression
     | expression '[' arrayRange ']'
     | newDynamicArray
     | environmentalVariable
-    | expression '.' 'length'
-    | expression '.' 'balance'
+    | expression '.' lengthOrBalanceStringLiteral
     | expression '.' functionCall
     | expression '.' identifier
     | tupleExpression
@@ -228,6 +227,7 @@ expression
     | variableDeclaration
     ;
 
+lengthOrBalanceStringLiteral: 'length' | 'balance';
 
 arrayRange
     : expression

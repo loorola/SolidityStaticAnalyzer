@@ -628,6 +628,16 @@ public interface SolidityListener extends ParseTreeListener {
 	 */
 	void exitExpression(SolidityParser.ExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SolidityParser#lengthOrBalanceStringLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterLengthOrBalanceStringLiteral(SolidityParser.LengthOrBalanceStringLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#lengthOrBalanceStringLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitLengthOrBalanceStringLiteral(SolidityParser.LengthOrBalanceStringLiteralContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SolidityParser#arrayRange}.
 	 * @param ctx the parse tree
 	 */
@@ -637,6 +647,16 @@ public interface SolidityListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArrayRange(SolidityParser.ArrayRangeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SolidityParser#colonOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterColonOperator(SolidityParser.ColonOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#colonOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitColonOperator(SolidityParser.ColonOperatorContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SolidityParser#newDynamicArray}.
 	 * @param ctx the parse tree

@@ -11,12 +11,11 @@ public class Expression extends BaseNode {
     public int type;
     /*
     0: Equality
-    1: Static Array
-    2: New Dynamic Array /
-    3: EnvironmentalVariable
-    4: ArrayLength|ContractBalance
-    5: FunctionCall
-    6: FunctionIdentifier
+    1: Static Array /
+    2: New Dynamic Array //
+    3: EnvironmentalVariable /
+    4: FunctionCall
+    5: FunctionIdentifier
     7: tupleExpression
     8: TypeExpression
     9: PrimaryExpression

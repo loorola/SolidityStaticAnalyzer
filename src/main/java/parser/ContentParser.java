@@ -5,6 +5,7 @@ import parser.Base.SolidityBaseListener;
 import parser.Base.SolidityParser;
 import utils.Content.ContractNodeType.BasicContractDefinition.Function;
 import utils.Content.ContractNodeType.ExpressionDefinition.NewDynamicArray;
+import utils.Content.ContractNodeType.ExpressionDefinition.StaticArray;
 import utils.Content.ContractNodeType.ExpressionDefinition.VariableDeclaration;
 import utils.Content.ContractNodeType.StateVariableDeclaration.FunctionVariable;
 import utils.Content.ContractNodeType.StateVariableDeclaration.MappingVariable;
@@ -453,7 +454,8 @@ public class ContentParser extends SolidityBaseListener {
     private static Expression getStaticArray(SolidityParser.ExpressionContext ctx){
         Expression e = null;
         if(ctx.arrayRange()!=null){
-
+            if(ctx.arrayRange().colonOperator()==null){
+            }
         }
         return e;
     }
