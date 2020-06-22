@@ -1,5 +1,5 @@
 package parser.Base;
-// Generated from Solidity.g4 by ANTLR 4.8
+// Generated from C:\Users\TempUser\Desktop\proj\fyp\antlr4\Solidity.g4 by ANTLR 4.8
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -767,6 +767,54 @@ public class SolidityBaseListener implements SolidityListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitLengthOrBalanceStringLiteral(SolidityParser.LengthOrBalanceStringLiteralContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterConditionalOperator(SolidityParser.ConditionalOperatorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConditionalOperator(SolidityParser.ConditionalOperatorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterConditionalStatementShortFormOperator(SolidityParser.ConditionalStatementShortFormOperatorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConditionalStatementShortFormOperator(SolidityParser.ConditionalStatementShortFormOperatorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterShiftOperator(SolidityParser.ShiftOperatorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitShiftOperator(SolidityParser.ShiftOperatorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBitOperator(SolidityParser.BitOperatorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBitOperator(SolidityParser.BitOperatorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
