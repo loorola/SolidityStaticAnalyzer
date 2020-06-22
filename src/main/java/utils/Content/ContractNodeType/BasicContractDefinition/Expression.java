@@ -12,17 +12,16 @@ public class Expression extends BaseNode {
     /*
     0: Equality
     1: Static Array /
-    2: New Dynamic Array //
+    2: New Dynamic Array /
     3: EnvironmentalVariable /
-    4: FunctionCall
+    4: FunctionCall /
     5: FunctionIdentifier /
     6: tupleExpression /
-    7: TypeExpression
-    8: PrimaryExpression
-    9: TypeConversion
-    10: OperatorExpression
-    11: ConditionalDeclaration
-    12: VariableDeclaration /
+    7: TypeExpression /
+    8: PrimaryExpression /
+    9: TypeConversion /
+    10: OperatorExpression /
+    11: VariableDeclaration /
      */
     public SolidityParser.ExpressionContext expressionContext = null;
 
@@ -30,8 +29,6 @@ public class Expression extends BaseNode {
         expressionContext = ctx;
         this.type=type;
     }
-
-
 
 
 }

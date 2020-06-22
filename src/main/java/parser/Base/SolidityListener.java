@@ -1,5 +1,5 @@
 package parser.Base;
-// Generated from Solidity.g4 by ANTLR 4.8
+// Generated from C:\Users\TempUser\Desktop\proj\fyp\antlr4\Solidity.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -637,6 +637,46 @@ public interface SolidityListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLengthOrBalanceStringLiteral(SolidityParser.LengthOrBalanceStringLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SolidityParser#conditionalOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterConditionalOperator(SolidityParser.ConditionalOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#conditionalOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitConditionalOperator(SolidityParser.ConditionalOperatorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SolidityParser#conditionalStatementShortFormOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterConditionalStatementShortFormOperator(SolidityParser.ConditionalStatementShortFormOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#conditionalStatementShortFormOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitConditionalStatementShortFormOperator(SolidityParser.ConditionalStatementShortFormOperatorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SolidityParser#shiftOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterShiftOperator(SolidityParser.ShiftOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#shiftOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitShiftOperator(SolidityParser.ShiftOperatorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SolidityParser#bitOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterBitOperator(SolidityParser.BitOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#bitOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitBitOperator(SolidityParser.BitOperatorContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SolidityParser#arrayRange}.
 	 * @param ctx the parse tree

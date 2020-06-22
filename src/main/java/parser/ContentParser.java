@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import parser.Base.SolidityBaseListener;
 import parser.Base.SolidityParser;
 import utils.Content.ContractNodeType.BasicContractDefinition.Function;
+import utils.Content.ContractNodeType.ExpressionDefinition.Equality;
 import utils.Content.ContractNodeType.ExpressionDefinition.NewDynamicArray;
 import utils.Content.ContractNodeType.ExpressionDefinition.StaticArray;
 import utils.Content.ContractNodeType.ExpressionDefinition.VariableDeclaration;
@@ -417,61 +418,52 @@ public class ContentParser extends SolidityBaseListener {
     private static Expression expressionContext2Expression(SolidityParser.ExpressionContext ctx){
         Expression e=null;
         if(ctx.twoPlusMinusOperator()!=null){
-
-        }
-        return e;
-    }
-
-    private static Expression handleEquality(SolidityParser.ExpressionContext ctx){
-        Expression e=null;
-        if(ctx.twoPlusMinusOperator()!=null||ctx.equalOperator()!=null||ctx.lvalueOperator()!=null){
-
-            Stack<SolidityParser.ExpressionContext> s = new Stack<>();
-            s.push(ctx);
-            while(!s.isEmpty()){
-
-            }
-        }
-
-        return e;
-    }
-
-    private static Expression getFunctionCall(SolidityParser.ExpressionContext ctx){
-        Expression e = null;
-        return e;
-    }
-
-    private static Expression getNewDynamicArray(SolidityParser.ExpressionContext ctx){
-        Expression e = null;
-        if(ctx.newDynamicArray()!=null){
-            if(ctx.newDynamicArray().dynamicType()!=null){
-                e=new NewDynamicArray(ctx.newDynamicArray().dynamicType().getText(), true, ctx);
-            }else e = new NewDynamicArray(ctx.newDynamicArray().typeName().getText(), false,ctx);
-        }
-        return e;
-    }
-
-    private static Expression getStaticArray(SolidityParser.ExpressionContext ctx){
-        Expression e = null;
-        if(ctx.arrayRange()!=null){
-            if(ctx.arrayRange().colonOperator()==null){
-            }
-        }
-        return e;
-    }
-
-    private static Expression getVariableDeclaration(SolidityParser.ExpressionContext ctx){
-        Expression e = null;
-        if(ctx.variableDeclaration()!=null){
-            if(ctx.variableDeclaration().storageLocation()!=null){
-                e=new VariableDeclaration(ctx.variableDeclaration().typeName().getText(),ctx.variableDeclaration().storageLocation().getText(), ctx.variableDeclaration().identifier().getText(), ctx);
-            }else if(ctx.variableDeclaration().identifier()!=null){
-                e=new VariableDeclaration(ctx.variableDeclaration().typeName().getText(),null, ctx.variableDeclaration().identifier().getText(), ctx);
+            Expression t = expressionContext2Expression(ctx.expression(0));
+            if(ctx.twoPlusMinusOperator().getAltNumber()<ctx.expression(0).getAltNumber()){
+                e=new Equality(ctx, t, null);
             }else{
-                e=new VariableDeclaration(ctx.variableDeclaration().typeName().getText(),null, null, ctx);
+                e=new Equality(ctx,null, t);
             }
+
+        }else if(ctx.equalOperator()!=null||ctx.lvalueOperator()!=null){
+            Expression t1 = expressionContext2Expression(ctx.expression(0));
+            Expression t2 = expressionContext2Expression(ctx.expression(1));
+            e=new Equality(ctx, t1,t2);
+        }else if(ctx.arrayRange()!=null){
+            if(ctx.arrayRange().colonOperator()!=null){
+            }
+        }else if (ctx.newDynamicArray()!=null){
+
+        }else if(ctx.environmentalVariable()!=null){
+
+        }else if(ctx.functionCall()!=null||ctx.callArguments()!=null){
+
+        }else if(ctx.lengthOrBalanceStringLiteral()!=null||ctx.identifier()!=null){
+
+        }else if(ctx.tupleExpression()!=null){
+
+        }else if(ctx.typeExpression()!=null){
+
+        }else if(ctx.primaryExpression()!=null){
+
+        }else if(ctx.typeConversion()!=null){
+
+        }else if(ctx.powerOperator()!=null||ctx.muldivOperator()!=null||ctx.plusminusOperator()!=null||ctx.shiftOperator()!=null||ctx.bitOperator()!=null||ctx.conditionalOperator()!=null){
+
+        }else if(ctx.varDeclaration()!=null||ctx.variableDeclaration()!=null){
+
         }
         return e;
+    }
+
+    private static int getExpressionType(SolidityParser.ExpressionContext exp){
+        int type = 0;
+        if(exp.twoPlusMinusOperator()!=null||exp.equalOperator()!=null||exp.lvalueOperator()!=null){
+            return type;
+        }else if (exp.arrayRange()!=null){
+            type=1;
+        }
+        return type;
     }
 
 }

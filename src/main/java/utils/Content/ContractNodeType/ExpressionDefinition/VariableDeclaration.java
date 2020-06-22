@@ -9,7 +9,7 @@ public class VariableDeclaration extends Expression {
     String alias;
 
     public VariableDeclaration(String dataType, String storageLocation, String alias, SolidityParser.ExpressionContext ctx){
-        super(ctx,13);
+        super(ctx,11);
         this.dataType=dataType;
         this.storageLocation=storageLocation;
         this.alias=alias;

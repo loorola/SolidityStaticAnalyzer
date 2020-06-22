@@ -213,15 +213,10 @@ expression
     | expression powerOperator expression
     | expression muldivOperator expression
     | expression plusminusOperator expression
-    | expression ('<<' | '>>') expression
-    | expression '&' expression
-    | expression '^' expression
-    | expression '|' expression
-    | expression ('<' | '>' | '<=' | '>=') expression
-    | expression comparison expression
-    | expression '&&' expression
-    | expression '||' expression
-    | expression '?' expression ':' expression
+    | expression shiftOperator expression
+    | expression bitOperator expression
+    | expression conditionalOperator expression
+    | expression conditionalStatementShortFormOperator expression conditionalStatementShortFormOperator expression
     | expression (equalOperator | lvalueOperator) expression
     | varDeclaration
     | variableDeclaration
@@ -229,11 +224,19 @@ expression
 
 lengthOrBalanceStringLiteral: 'length' | 'balance';
 
+conditionalOperator: ('&&' | '||' | '<' | '>' | '<=' | '>=' |'==' | '!=') ;
+
+conditionalStatementShortFormOperator:  ('?'|':');
+
+shiftOperator: ('<<' | '>>');
+
+bitOperator: ('&' | '^' | '|');
+
 arrayRange
     : expression
     | expression colonOperator
     | colonOperator expression
-    | expression ':' expression //splitting
+    | expression colonOperator expression //splitting
     ;
 
 colonOperator: ':';
