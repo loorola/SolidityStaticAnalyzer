@@ -5,7 +5,8 @@ import utils.Content.ContractNodeType.BasicContractDefinition.Expression;
 
 public class TypeExpression extends Expression {
 
-    public TypeExpression(SolidityParser.ExpressionContext ctx) {
+    public TypeExpression(Expression e, SolidityParser.ExpressionContext ctx) {
         super(ctx, 7);
+        expressionList.add(e);
     }
 }

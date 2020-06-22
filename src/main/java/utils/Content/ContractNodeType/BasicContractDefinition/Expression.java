@@ -22,6 +22,7 @@ public class Expression extends BaseNode {
     9: TypeConversion /
     10: OperatorExpression /
     11: VariableDeclaration /
+    12: VarDeclaration
      */
     public SolidityParser.ExpressionContext expressionContext = null;
 
