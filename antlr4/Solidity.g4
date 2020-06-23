@@ -208,19 +208,15 @@ expression
     | twoPlusMinusOperator expression
     | typeConversion
     | plusminusOperator expression
-    | '!' expression
-    | '~' expression
-    | expression powerOperator expression
-    | expression muldivOperator expression
-    | expression plusminusOperator expression
-    | expression shiftOperator expression
-    | expression bitOperator expression
-    | expression conditionalOperator expression
+    | conditionalExpression
+    | expression (conditionalOperator|bitOperator|shiftOperator|plusminusOperator|powerOperator|muldivOperator) expression
     | expression conditionalStatementShortFormOperator expression conditionalStatementShortFormOperator expression
     | expression (equalOperator | lvalueOperator) expression
     | varDeclaration
     | variableDeclaration
     ;
+
+conditionalExpression: ('!'|'~') expression;
 
 lengthOrBalanceStringLiteral: 'length' | 'balance';
 

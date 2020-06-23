@@ -628,6 +628,16 @@ public interface SolidityListener extends ParseTreeListener {
 	 */
 	void exitExpression(SolidityParser.ExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SolidityParser#conditionalExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterConditionalExpression(SolidityParser.ConditionalExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#conditionalExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitConditionalExpression(SolidityParser.ConditionalExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SolidityParser#lengthOrBalanceStringLiteral}.
 	 * @param ctx the parse tree
 	 */

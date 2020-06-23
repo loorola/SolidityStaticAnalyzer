@@ -10,7 +10,7 @@ public class Expression extends BaseNode {
     public List<Expression> expressionList = new ArrayList<>();
     public int type;
     /*
-    0: Equality
+    0: Equality /
     1: Static Array /
     2: New Dynamic Array /
     3: EnvironmentalVariable /
@@ -22,7 +22,9 @@ public class Expression extends BaseNode {
     9: TypeConversion /
     10: OperatorExpression /
     11: VariableDeclaration /
-    12: VarDeclaration
+    12: VarDeclaration /
+    13: ConditionalDeclaration /
+    14: ConditionalExpression /
      */
     public SolidityParser.ExpressionContext expressionContext = null;
 
