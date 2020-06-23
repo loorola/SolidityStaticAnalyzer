@@ -5,8 +5,8 @@ import utils.Content.ContractNodeType.BasicContractDefinition.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FunctionBlock {
+public class Block {
     public List<Statement>statementList = new ArrayList<>();
-    public FunctionBlock(){}
+    public Block(){}
 
 }

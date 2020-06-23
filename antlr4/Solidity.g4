@@ -302,8 +302,10 @@ statement
     ;
 
 tryCatchStatement
-    : 'try' expression returnsParameters? block ('catch' (identifier? parameterList)? block)*
+    : 'try' expression returnsParameters? block ('catch' catchStatement? block)*
     ;
+
+catchStatement: (identifier? parameterList);
 
 emitEventStatement : 'emit' (identifier '.' identifier callArguments | identifier callArguments) ; // emit BaseContract.EventName() is allowed
 

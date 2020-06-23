@@ -898,6 +898,16 @@ public interface SolidityListener extends ParseTreeListener {
 	 */
 	void exitTryCatchStatement(SolidityParser.TryCatchStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SolidityParser#catchStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterCatchStatement(SolidityParser.CatchStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SolidityParser#catchStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitCatchStatement(SolidityParser.CatchStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SolidityParser#emitEventStatement}.
 	 * @param ctx the parse tree
 	 */

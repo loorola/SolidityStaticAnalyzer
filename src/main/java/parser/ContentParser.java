@@ -10,10 +10,7 @@ import utils.Content.ContractNodeType.StateVariableDeclaration.FunctionVariable;
 import utils.Content.ContractNodeType.StateVariableDeclaration.MappingVariable;
 import utils.Content.ContractNodeType.StateVariableDeclaration.PrimaryVariable;
 import utils.Content.ContractNodeType.StateVariableDeclaration.StateVariableDeclaration;
-import utils.Content.ContractNodeType.Statement.BlockStatement;
-import utils.Content.ContractNodeType.Statement.ConditionalStatement;
-import utils.Content.ContractNodeType.Statement.FunctionBlock;
-import utils.Content.ContractNodeType.Statement.SingleStatement;
+import utils.Content.ContractNodeType.Statement.*;
 import utils.File.FileNode;
 import utils.File.FileTree;
 import utils.Content.ContractNodeType.BasicContractDefinition.*;
@@ -395,8 +392,8 @@ public class ContentParser extends SolidityBaseListener {
 
     }
 
-    private static FunctionBlock BlockContext2Statement(SolidityParser.BlockContext ctx){
-        FunctionBlock b = new FunctionBlock();
+    private static Block BlockContext2Statement(SolidityParser.BlockContext ctx){
+        Block b = new Block();
         for(int i=0;i<ctx.statement().size();i++){
             b.statementList.add(StatementContext2Statement(ctx.statement(i)));
         }
@@ -431,7 +428,39 @@ public class ContentParser extends SolidityBaseListener {
         }else if(ctx.doWhileStatement()!=null){
            s = new ConditionalStatement(expressionContext2Expression(ctx.doWhileStatement().condition().expression()).getValue(), ctx);
         }else if(ctx.tryCatchStatement()!=null){
-
+            s = new TryCatchStatement(expressionContext2Expression(ctx.tryCatchStatement().expression()).getValue(),BlockContext2Statement(ctx.tryCatchStatement().block(0)), BlockContext2Statement(ctx.tryCatchStatement().block(1)),ctx);
+            if(ctx.tryCatchStatement().returnsParameters()!=null){
+                ((TryCatchStatement)s).returnParameterList = parameterContextList2ParameterList(ctx.tryCatchStatement().returnsParameters().parameterList());
+            }
+            if(ctx.tryCatchStatement().catchStatement()!=null&&ctx.tryCatchStatement().catchStatement().size()!=0){
+                Pair<String, List<Parameter>> catchParameter;
+                List<Parameter> parameterList;
+                String alias = "nil";
+                for(int i=0;i<ctx.tryCatchStatement().catchStatement().size();i++){
+                    if(ctx.tryCatchStatement().catchStatement(i).identifier()!=null) alias = ctx.tryCatchStatement().catchStatement(i).identifier().getText();
+                    parameterList = parameterContextList2ParameterList(ctx.tryCatchStatement().catchStatement(i).parameterList());
+                    catchParameter = new Pair(alias, parameterList);
+                    ((TryCatchStatement) s).catchParameterList.add(catchParameter);
+                    alias = "nil";
+                }
+            }
+        }else if(ctx.inlineAssemblyStatement()!=null){
+            s=new InlineAssemblyStatement(ctx);
+        }else if(ctx.placeholderStatement()!=null ||ctx.continueStatement()!=null||ctx.breakStatement()!=null||ctx.returnStatement()!=null||ctx.deleteStatement()!=null){
+            s = new SingleStatement(ctx);
+        }else if(ctx.throwRevertStatement()!=null){
+            s = new ThrowRevertStatement(ctx);
+        }else if(ctx.emitEventStatement()!=null){
+            s = new EmitEventStatement(ctx);
+            ((EmitEventStatement) s).nameValueList = callArgument2NameValueList(ctx.emitEventStatement().callArguments());
+            if(ctx.emitEventStatement().identifier().size()==1){
+                ((EmitEventStatement) s).alias = new Pair(ctx.emitEventStatement().identifier(0).getText(), null);
+            }else ((EmitEventStatement) s).alias = new Pair(ctx.emitEventStatement().identifier(0).getText(), ctx.emitEventStatement().identifier(1).getText());
+        }else if(ctx.requireStatement()!=null){
+            s = new RequireStatement(expressionContext2Expression(ctx.requireStatement().expression()).getValue(),ctx);
+            if(ctx.requireStatement().stringLiteral()!=null) ((RequireStatement) s).msg = ctx.requireStatement().stringLiteral().getText();
+        }else if(ctx.expressionStatement()!=null){
+            s=new ExpressionStatement(expressionContext2Expression(ctx.expressionStatement().expression()).getValue(),ctx);
         }
         return s;
     }
@@ -504,7 +533,7 @@ public class ContentParser extends SolidityBaseListener {
             if(ctx.callArguments().tupleExpression()!=null){
                 e.expressionList=tupleExpression2ExpressionList(ctx.callArguments().tupleExpression());
             }else{
-                ((FunctionCall) e).nameValueList=getNameValueList(ctx.callArguments());
+                ((FunctionCall) e).nameValueList=callArgument2NameValueList(ctx.callArguments());
             }
             result = new Pair<Integer, Expression>(4,e);
 
@@ -517,7 +546,7 @@ public class ContentParser extends SolidityBaseListener {
                 }
                 e.expressionList.add(expression);
             }else{
-                ((FunctionCall) e).nameValueList=getNameValueList(ctx.callArguments());
+                ((FunctionCall) e).nameValueList=callArgument2NameValueList(ctx.callArguments());
             }
             result = new Pair<Integer, Expression>(4,e);
 
@@ -599,7 +628,7 @@ public class ContentParser extends SolidityBaseListener {
 
 
 
-    private static List<Pair<String, Expression>> getNameValueList(SolidityParser.CallArgumentsContext ctx){
+    private static List<Pair<String, Expression>> callArgument2NameValueList(SolidityParser.CallArgumentsContext ctx){
         List<Pair<String, Expression>>l = new ArrayList<>();
         Pair<String, Expression> p;
         for(int i=0;i<ctx.nameValueList().expression().size();i++){
@@ -618,4 +647,5 @@ public class ContentParser extends SolidityBaseListener {
         }
         return l;
     }
+
 }
