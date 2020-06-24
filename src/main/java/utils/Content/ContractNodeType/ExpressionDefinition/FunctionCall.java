@@ -3,6 +3,7 @@ package utils.Content.ContractNodeType.ExpressionDefinition;
 import javafx.util.Pair;
 import parser.Base.SolidityParser;
 import utils.Content.ContractNodeType.BasicContractDefinition.Expression;
+import utils.Content.ContractNodeType.StateVariableDeclaration.FunctionVariable;
 
 import java.util.ArrayList;
 import java.util.HashMap;

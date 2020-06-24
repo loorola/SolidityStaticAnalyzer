@@ -2,8 +2,11 @@ package utils.Content.ContractNodeType.ExpressionDefinition;
 
 import parser.Base.SolidityParser;
 import utils.Content.ContractNodeType.BasicContractDefinition.Expression;
+import utils.Context.VariableDataType.FunctionVariableDataType;
+import utils.Context.VariableDataType.InstanceVariableDataType;
 
 public class VariableDeclaration extends Expression {
+    InstanceVariableDataType instanceVariableDataType;
     String dataType;
     String storageLocation;
     String alias;
