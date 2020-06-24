@@ -30,7 +30,6 @@ public class ProjectParser {
                     System.out.println("Contract: "+fn.path);
 
                     ContentParser contentParser = new ContentParser(fn);
-                    //ContextSensitiveParser ps = new ContextSensitiveParser(fn);
                     p = FileDirectory.tmp_root.toPath().resolve(fn.path);
 
                     input = new ANTLRFileStream(p.toString());
@@ -63,35 +62,35 @@ public class ProjectParser {
         }
     }
 
+    public static void initContextSensitive(FileTree ft)throws Exception{
+        Stack<FileNode> s=new Stack<FileNode>();
+        Path p;
+        ANTLRInputStream input;
+        s.push(ft.root);
+        FileNode fn;
+        File tf;
+        while(!s.isEmpty()){
+            fn=s.pop();
+            if(fn.path!=null){
+                tf=new File(fn.path);
+                if(!tf.isDirectory()){
+                    System.out.println("Contract: "+fn.path);
+                    p = FileDirectory.tmp_root.toPath().resolve(fn.path);
 
+                    input = new ANTLRFileStream(p.toString());
 
-        private static void printSource(SourceParser sp){
-            System.out.println("Local Source List: ");
-            sp.sourceList.forEach(x->{
-                System.out.println(x.fn.path+"->"+x.alias);
-                if(!x.srcModule.isEmpty()){
-                    System.out.println("Used Contract: ");
-                    x.srcModule.forEach(y->{
-                        System.out.println(y.moduleName);
-                    });
-                }else{
-                    System.out.println("all");
                 }
-            });
-            System.out.println();
-            System.out.println("Global Source List: ");
-            sp.globalSourceList.forEach(x->{
-                System.out.println(x.path+"->"+x.alias);
-                if(!x.srcModule.isEmpty()){
-                    System.out.println("Used Contract: ");
-                    x.srcModule.forEach(y->{
-                        System.out.println(y.moduleName);
-                    });
-                }else{
-                    System.out.println("all");
-                }
-            });
+
+            }
+
+            Iterator<FileNode>f = fn.children.iterator();
+            while(f.hasNext()){
+                s.push(f.next());
+            }
         }
+    }
+
+
 }
 
 
