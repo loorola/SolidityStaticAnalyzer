@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Struct extends BaseNode {
-    List<SolidityParser.VariableDeclarationContext> variableDeclarationContextList = new ArrayList<>();
-
-    public Struct(String alias){
+    public List<SolidityParser.VariableDeclarationContext> variableDeclarationContextList = new ArrayList<>();
+    public SolidityParser.StructDefinitionContext ctx;
+    public Struct(String alias, SolidityParser.StructDefinitionContext ctx){
         this.alias = alias;
+        this.ctx = ctx;
     }
 
     public void addVariableDeclaration(SolidityParser.VariableDeclarationContext ctx){

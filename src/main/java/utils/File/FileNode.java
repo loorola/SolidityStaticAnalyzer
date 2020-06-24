@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import parser.SourceParser;
+import utils.Content.ContractNodeType.BasicContractDefinition.Struct;
 import utils.Content.FileContent;
 import utils.Source.GlobalSource;
 import utils.Source.LocalSource;

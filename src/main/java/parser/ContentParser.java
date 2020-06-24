@@ -38,6 +38,26 @@ public class ContentParser extends SolidityBaseListener {
     }
 
     @Override
+    public void enterSourceUnit(SolidityParser.SourceUnitContext ctx) {
+        Enum e;
+        for(int i=0;i<ctx.enumDefinition().size();i++){
+            e=new Enum(ctx.enumDefinition(i).identifier().getText(), ctx.enumDefinition(i));
+            fn.fileContent.enumList.add(e);
+        }
+
+        Struct s;
+        for(int i=0;i<ctx.structDefinition().size();i++){
+            s = new Struct(ctx.structDefinition(i).identifier().getText(), ctx.structDefinition(i));
+            for(int j=0;j<ctx.structDefinition(i).variableDeclaration().size();j++){
+                s.addVariableDeclaration(ctx.structDefinition(i).variableDeclaration(j));
+            }
+            fn.fileContent.structList.add(s);
+        }
+
+
+    }
+
+    @Override
     public void enterImportFile(SolidityParser.ImportFileContext ctx) {    //same as import all
         Path sourcePath = PathResolver.resolveImportedPath(Paths.get(fn.path),ctx.stringLiteral().getText());
         FileNode source_node= FileTree.findFileNode(sourcePath.toString());   //find if it is in the same directory
@@ -155,12 +175,43 @@ public class ContentParser extends SolidityBaseListener {
     }
 
 
+    @Override
+    public void enterContractDefinition(SolidityParser.ContractDefinitionContext ctx) {
+        Contract c = new Contract(ctx.identifier().getText(),ctx);
+        fn.fileContent.contractList.add(c);
+        ctx.inheritanceSpecifier().forEach(x->{
+            c.addInheritance(x.getText());
+        });
+
+        parseInsideContract(c, ctx);
+    }
+
+    @Override
+    public void enterLibraryDefinition(SolidityParser.LibraryDefinitionContext ctx) {
+        Library l = new Library(ctx.identifier().getText(),ctx);
+        fn.fileContent.libraryList.add(l);
+
+        parseInsideContract(l,ctx);
+    }
+
+    @Override
+    public void enterInterfaceDefinition(SolidityParser.InterfaceDefinitionContext ctx) {
+        Interface in = new Interface(ctx.identifier().getText(),ctx);
+        fn.fileContent.interfaceList.add(in);
+        ctx.inheritanceSpecifier().forEach(x->{
+            in.addInheritance(x.getText());
+        });
+        parseInsideContract(in,ctx);
+
+    }
+
 /*    Content Parser Part    */
 
     private void parseInsideContract(Instance n, ParserRuleContext ctx){
         int count=0;
 
         SolidityParser.ContractPartDefinitionContext tmp = ctx.getChild(SolidityParser.ContractPartDefinitionContext.class,count);
+
         while(tmp!=null){
             if(tmp.usingForDeclaration()!=null){
                 UsingFor uf;
@@ -172,13 +223,14 @@ public class ContentParser extends SolidityBaseListener {
                 n.addUsingFor(uf);
                 System.out.println("using for");
             }else if(tmp.structDefinition()!=null){
-                Struct s = new Struct(tmp.structDefinition().identifier().getText());
+                Struct s = new Struct(tmp.structDefinition().identifier().getText(), tmp.structDefinition());
                 tmp.structDefinition().variableDeclaration().forEach(x->{
                     s.addVariableDeclaration(x);
                 });
                 n.addStruct(s);
                 System.out.println(s.alias);
             }else if(tmp.stateVariableDeclaration()!=null){
+                n.stateVariableDeclarationList = initMultipleStateVariable(tmp.stateVariableDeclaration());
                 //n.stateVariableDeclarationList = Stream.concat(n.stateVariableDeclarationList.stream(),initMultipleStateVariable(tmp.stateVariableDeclaration()).stream()).collect(Collectors.toList());
             } else if(tmp.modifierDefinition()!=null){
                 Modifier m = new Modifier(tmp.modifierDefinition().identifier().getText(),tmp.modifierDefinition().block());
@@ -259,7 +311,7 @@ public class ContentParser extends SolidityBaseListener {
                 n.addEvent(tmp.eventDefinition().identifier().getText());
                 System.out.println("Event: "+n.eventList.get(n.eventList.size()-1));
             }else if(tmp.enumDefinition()!=null){
-                Enum e = new Enum(tmp.enumDefinition().identifier().getText());
+                Enum e = new Enum(tmp.enumDefinition().identifier().getText(), tmp.enumDefinition());
                 tmp.enumDefinition().enumValue().forEach(x->{
                     e.addValue(x.getText());
                 });
@@ -274,34 +326,7 @@ public class ContentParser extends SolidityBaseListener {
 
     }
 
-    @Override
-    public void enterContractDefinition(SolidityParser.ContractDefinitionContext ctx) {
-        Contract c = new Contract(ctx.identifier().getText(),ctx);
-        fn.fileContent.contractList.add(c);
-        ctx.inheritanceSpecifier().forEach(x->{
-            c.addInheritance(x.getText());
-        });
 
-        parseInsideContract(c, ctx);
-    }
-
-    @Override
-    public void enterLibraryDefinition(SolidityParser.LibraryDefinitionContext ctx) {
-        Library l = new Library(ctx.identifier().getText(),ctx);
-        fn.fileContent.libraryList.add(l);
-
-        parseInsideContract(l,ctx);
-    }
-
-    @Override
-    public void enterInterfaceDefinition(SolidityParser.InterfaceDefinitionContext ctx) {
-        Interface in = new Interface(ctx.identifier().getText(),ctx);
-        fn.fileContent.interfaceList.add(in);
-        ctx.inheritanceSpecifier().forEach(x->{
-            in.addInheritance(x.getText());
-        });
-
-    }
 
 
     /*
@@ -464,15 +489,6 @@ public class ContentParser extends SolidityBaseListener {
         }
         return s;
     }
-
-
-    //Expression
-
-    private static void getExpression(SolidityParser.ExpressionContext ctx){
-
-    }
-
-
 
     private static Pair<Integer, Expression> expressionContext2Expression(SolidityParser.ExpressionContext ctx){
         Pair<Integer, Expression> result=null;

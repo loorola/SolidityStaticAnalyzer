@@ -15,6 +15,7 @@ public class Function extends BaseFunction {
     public List<SolidityParser.ExpressionContext> modifierWithParameterList = new ArrayList<>();
     public List<String> returnParameterList = new ArrayList<>();
 
+
     public Function(String alias, SolidityParser.BlockContext block, String stateMutability, String visibleType){
         this.alias = alias;
         this.stateMutability = stateMutability;
