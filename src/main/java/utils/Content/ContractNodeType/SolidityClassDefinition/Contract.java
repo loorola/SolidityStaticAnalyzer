@@ -7,13 +7,13 @@ import java.util.List;
 
 public class Contract extends Instance {
     SolidityParser.ContractDefinitionContext ctx;
-    public List<String> inheritanceList = new ArrayList<>();
+    public List<SolidityParser.InheritanceSpecifierContext> inheritanceList = new ArrayList<>();
     public Contract(String alias, SolidityParser.ContractDefinitionContext ctx){
         this.alias = alias;
         this.ctx=ctx;
     }
 
-    public void addInheritance(String identifier){
+    public void addInheritance(SolidityParser.InheritanceSpecifierContext identifier){
         inheritanceList.add(identifier);
     }
 }

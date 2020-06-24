@@ -10,4 +10,11 @@ public class UsingFor extends BaseNode {
         this.dataTypeName=dataTypeName;
     }
 
+    @Override
+    public String toString() {
+        return "UsingFor{" +
+                "dataTypeName='" + dataTypeName + '\'' +
+                ", alias='" + alias + '\'' +
+                '}';
+    }
 }

@@ -3,7 +3,8 @@ package utils.Content.ContractNodeType.SolidityClassDefinition;
 import utils.Content.ContractNodeType.BaseNode;
 import utils.Content.ContractNodeType.BasicContractDefinition.*;
 import utils.Content.ContractNodeType.BasicContractDefinition.Enum;
-import utils.Content.ContractNodeType.BasicContractDefinition.Function;
+import utils.Content.ContractNodeType.FunctionDefinition.FallbackFunction;
+import utils.Content.ContractNodeType.FunctionDefinition.Function;
 import utils.Content.ContractNodeType.StateVariableDeclaration.StateVariableDeclaration;
 
 import java.util.ArrayList;

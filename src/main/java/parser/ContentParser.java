@@ -4,8 +4,10 @@ import javafx.util.Pair;
 import org.antlr.v4.runtime.ParserRuleContext;
 import parser.Base.SolidityBaseListener;
 import parser.Base.SolidityParser;
-import utils.Content.ContractNodeType.BasicContractDefinition.Function;
+import utils.Content.ContractNodeType.FunctionDefinition.FallbackFunction;
+import utils.Content.ContractNodeType.FunctionDefinition.Function;
 import utils.Content.ContractNodeType.ExpressionDefinition.*;
+import utils.Content.ContractNodeType.FunctionDefinition.FunctionInheritance;
 import utils.Content.ContractNodeType.StateVariableDeclaration.FunctionVariable;
 import utils.Content.ContractNodeType.StateVariableDeclaration.MappingVariable;
 import utils.Content.ContractNodeType.StateVariableDeclaration.PrimaryVariable;
@@ -48,13 +50,14 @@ public class ContentParser extends SolidityBaseListener {
         Struct s;
         for(int i=0;i<ctx.structDefinition().size();i++){
             s = new Struct(ctx.structDefinition(i).identifier().getText(), ctx.structDefinition(i));
+            String storage = null;
             for(int j=0;j<ctx.structDefinition(i).variableDeclaration().size();j++){
-                s.addVariableDeclaration(ctx.structDefinition(i).variableDeclaration(j));
+                if(ctx.structDefinition(i).variableDeclaration(j).storageLocation()!=null) storage = ctx.structDefinition(i).variableDeclaration(j).storageLocation().getText();
+
+                    s.addVariableDeclaration(ctx.structDefinition(i).variableDeclaration(j).typeName().getText(), storage, ctx.structDefinition(i).variableDeclaration(j).identifier().getText(), ctx.structDefinition(i).variableDeclaration(j));
             }
             fn.fileContent.structList.add(s);
         }
-
-
     }
 
     @Override
@@ -180,7 +183,7 @@ public class ContentParser extends SolidityBaseListener {
         Contract c = new Contract(ctx.identifier().getText(),ctx);
         fn.fileContent.contractList.add(c);
         ctx.inheritanceSpecifier().forEach(x->{
-            c.addInheritance(x.getText());
+            c.addInheritance(x);
         });
 
         parseInsideContract(c, ctx);
@@ -199,7 +202,7 @@ public class ContentParser extends SolidityBaseListener {
         Interface in = new Interface(ctx.identifier().getText(),ctx);
         fn.fileContent.interfaceList.add(in);
         ctx.inheritanceSpecifier().forEach(x->{
-            in.addInheritance(x.getText());
+            in.addInheritance(x);
         });
         parseInsideContract(in,ctx);
 
@@ -224,42 +227,48 @@ public class ContentParser extends SolidityBaseListener {
                 System.out.println("using for");
             }else if(tmp.structDefinition()!=null){
                 Struct s = new Struct(tmp.structDefinition().identifier().getText(), tmp.structDefinition());
-                tmp.structDefinition().variableDeclaration().forEach(x->{
-                    s.addVariableDeclaration(x);
-                });
+                String storage = null;
+                for(int j=0;j<tmp.structDefinition().variableDeclaration().size();j++){
+                    if( tmp.structDefinition().variableDeclaration(j).storageLocation()!=null)storage = tmp.structDefinition().variableDeclaration(j).storageLocation().getText();
+                    s.addVariableDeclaration(tmp.structDefinition().variableDeclaration(j).typeName().getText(), storage, tmp.structDefinition().variableDeclaration(j).identifier().getText(), tmp.structDefinition().variableDeclaration(j));
+                }
+                fn.fileContent.structList.add(s);
                 n.addStruct(s);
                 System.out.println(s.alias);
             }else if(tmp.stateVariableDeclaration()!=null){
                 n.stateVariableDeclarationList = initMultipleStateVariable(tmp.stateVariableDeclaration());
-                //n.stateVariableDeclarationList = Stream.concat(n.stateVariableDeclarationList.stream(),initMultipleStateVariable(tmp.stateVariableDeclaration()).stream()).collect(Collectors.toList());
-            } else if(tmp.modifierDefinition()!=null){
-                Modifier m = new Modifier(tmp.modifierDefinition().identifier().getText(),tmp.modifierDefinition().block());
+                System.out.println(tmp.stateVariableDeclaration().identifier(0).getText());
+            }else if(tmp.modifierDefinition()!=null){
+                Modifier m = new Modifier(tmp.modifierDefinition().identifier().getText(),BlockContext2Statement(tmp.modifierDefinition().block()));
                 if(tmp.modifierDefinition().parameterList()!=null){
                     m.parameterList = parameterContextList2ParameterList(tmp.modifierDefinition().parameterList());
                 }
                 n.addModifier(m);
                 System.out.println(m.alias);
             }else if(tmp.functionDefinition()!=null&&tmp.functionDefinition().functionIdentifier()!=null){  //normal function
-                Function f;
+                Function function;
+                String stateMutability = null;
                 if(tmp.functionDefinition().stateMutability().size()!=0){
-                    f=new Function(tmp.functionDefinition().functionIdentifier().identifier().getText(),tmp.functionDefinition().block(),tmp.functionDefinition().stateMutability(0).getText(),tmp.functionDefinition().visibleType(0).getText());
-                }else f=new Function(tmp.functionDefinition().functionIdentifier().identifier().getText(),tmp.functionDefinition().block(),null,tmp.functionDefinition().visibleType(0).getText());
-                f.parameterList=parameterContextList2ParameterList(tmp.functionDefinition().parameterList());
-                if(tmp.functionDefinition().identifier().size()!=0) f.modifierList=functionIdentifier2ModifierList(tmp.functionDefinition());
-                if(tmp.functionDefinition().inheritance().size()!=0){
-                    f.inheritanceContext=tmp.functionDefinition().inheritance(0);
+                    stateMutability = tmp.functionDefinition().stateMutability(0).getText();
                 }
-                if(tmp.functionDefinition().expression()!=null) f.modifierWithParameterList=functionExpression2ModifierList(tmp.functionDefinition());
-                if(tmp.functionDefinition().returnsParameters()!=null)f.returnParameterList=functionReturnsParameterListContext2ParameterList(tmp.functionDefinition().returnsParameters().parameterList());
+                function=new Function(tmp.functionDefinition().functionIdentifier().identifier().getText(),BlockContext2Statement(tmp.functionDefinition().block()),stateMutability,tmp.functionDefinition().visibleType(0).getText());
 
-                n.addFunction(f);
-                System.out.println(f.alias);
-                System.out.println("Identifier: ");
-                //getFunctionCall(tmp.functionDefinition());
+                function.parameterList=parameterContextList2ParameterList(tmp.functionDefinition().parameterList());
+                if(tmp.functionDefinition().identifier().size()!=0) function.modifierList=functionIdentifier2ModifierList(tmp.functionDefinition());
+                if(tmp.functionDefinition().inheritance()!=null&&tmp.functionDefinition().inheritance().size()!=0){
+                    InheritanceList2FunctionInheritanceList(tmp, function);
+                }
+
+                if(tmp.functionDefinition().expression()!=null) function.modifierWithParameterList=functionExpression2ModifierList(tmp.functionDefinition());
+                if(tmp.functionDefinition().returnsParameters()!=null)function.returnParameterList=functionReturnsParameterListContext2ParameterList(tmp.functionDefinition().returnsParameters().parameterList());
+                n.addFunction(function);
+                System.out.println(function.alias);
+
             }else if(tmp.functionDefinition()!=null){   //constructor
+
                 Function f;
                 String stateMutability=null;
-                SolidityParser.BlockContext b = null;
+                Block b = null;
                 String visibleType = null;
                 if(tmp.functionDefinition().visibleType()!=null&&tmp.functionDefinition().visibleType().size()!=0){
                     visibleType=tmp.functionDefinition().visibleType(0).getText();
@@ -267,7 +276,7 @@ public class ContentParser extends SolidityBaseListener {
                 if(tmp.functionDefinition().stateMutability()!=null&&tmp.functionDefinition().stateMutability().size()!=0){
                     stateMutability=tmp.functionDefinition().getText();
                 }
-                if(tmp.functionDefinition().block()!=null) b = tmp.functionDefinition().block();
+                if(tmp.functionDefinition().block()!=null) b = BlockContext2Statement(tmp.functionDefinition().block());
 
                 f=new Function("constructor",b,stateMutability,visibleType);
                 SolidityParser.ParameterListContext parameterListContext = tmp.functionDefinition().parameterList();
@@ -275,7 +284,7 @@ public class ContentParser extends SolidityBaseListener {
 
                 if(tmp.functionDefinition().identifier()!=null) f.modifierList=functionIdentifier2ModifierList(tmp.functionDefinition());
                 if(tmp.functionDefinition().inheritance()!=null&&tmp.functionDefinition().inheritance().size()!=0){
-                    f.inheritanceContext=tmp.functionDefinition().inheritance(0);
+                    InheritanceList2FunctionInheritanceList(tmp, f);
                 }
                 if(tmp.functionDefinition().expression()!=null) f.modifierWithParameterList=functionExpression2ModifierList(tmp.functionDefinition());  //derived constructor as modifier
 
@@ -284,14 +293,14 @@ public class ContentParser extends SolidityBaseListener {
             }else if(tmp.functionFallBackDefinition()!=null){   //fallback function
                 FallbackFunction f;
                 String stateMutability=null;
-                SolidityParser.BlockContext b = null;
+                Block b = null;
 
                 if(tmp.functionFallBackDefinition().stateMutability()!=null&&tmp.functionFallBackDefinition().stateMutability().size()!=0){
                     stateMutability=tmp.functionFallBackDefinition().stateMutability(0).getText();
                 }
 
                 if(tmp.functionFallBackDefinition().block()!=null){
-                    b=tmp.functionFallBackDefinition().block();
+                    b=BlockContext2Statement(tmp.functionFallBackDefinition().block());
                 }
 
                 f=new FallbackFunction(b);
@@ -326,12 +335,21 @@ public class ContentParser extends SolidityBaseListener {
 
     }
 
+    private static void InheritanceList2FunctionInheritanceList(SolidityParser.ContractPartDefinitionContext tmp, Function function) {
+        for(int i=0;i<tmp.functionDefinition().inheritance().size();i++){
+            for(int j=0;j<tmp.functionDefinition().inheritance(i).userDefinedTypeName().size();j++){
+                function.functionInheritanceList.add(userDefinedTypeName2FunctionInheritance(tmp.functionDefinition().inheritance(i).userDefinedTypeName(j)));
+            }
+        }
+    }
+
 
 
 
     /*
     * Function/Parameter/... Context to Object
      */
+
     private static List<Parameter> parameterContextList2ParameterList(SolidityParser.ParameterListContext ctx){
         List<Parameter> parameterList = new ArrayList<>();
         Parameter p;
@@ -399,7 +417,6 @@ public class ContentParser extends SolidityBaseListener {
                 v=new MappingVariable(ctx.identifier(i).getText(),ctx.typeName().mappingSt().typeName(0).getText(), ctx.typeName().mappingSt().typeName(1).getText(),visible, isConstant,e);
             }else if(ctx.typeName().functionTypeName()!=null){
                 SolidityParser.FunctionTypeNameContext t = ctx.typeName().functionTypeName();
-                List<SolidityParser.ParameterListContext> parameterListContexts = t.parameterList();
                 String fv = null;
                 String fs = null;
                 if(t.visibleType().size()!=0) fv = t.visibleType(0).getText();
@@ -438,7 +455,8 @@ public class ContentParser extends SolidityBaseListener {
                 s.statementList.add(StatementContext2Statement(ctx.ifStatement().statement(i)));
             }
         }else if(ctx.whileStatement()!=null){
-            s=new ConditionalStatement(expressionContext2Expression(ctx.ifStatement().condition().expression()).getValue(), ctx);
+            Expression e = expressionContext2Expression(ctx.whileStatement().condition().expression()).getValue();
+            s=new ConditionalStatement(e, ctx);
             s.statementList.add(StatementContext2Statement(ctx.whileStatement().statement()));
         }else if(ctx.forStatement()!=null){
             Expression e = null;
@@ -492,6 +510,7 @@ public class ContentParser extends SolidityBaseListener {
 
     private static Pair<Integer, Expression> expressionContext2Expression(SolidityParser.ExpressionContext ctx){
         Pair<Integer, Expression> result=null;
+        System.out.println(ctx.getText());
         Expression e=null;
 
         if(ctx.twoPlusMinusOperator()!=null){
@@ -557,9 +576,6 @@ public class ContentParser extends SolidityBaseListener {
             e = new FunctionCall(ctx.functionCall().functionName().getText(), expressionContext2Expression(ctx.expression(0)).getValue(),ctx);
             if(ctx.functionCall().callArguments().tupleExpression()!=null){
                 Expression expression = new TupleExpression(ctx);
-                for(int i=0;i<ctx.functionCall().callArguments().tupleExpression().expression().size();i++){
-                    //expression.expressionList.add(ctx.functionCall().callArguments().tu);
-                }
                 e.expressionList.add(expression);
             }else{
                 ((FunctionCall) e).nameValueList=callArgument2NameValueList(ctx.callArguments());
@@ -568,8 +584,11 @@ public class ContentParser extends SolidityBaseListener {
 
         }else if(ctx.lengthOrBalanceStringLiteral()!=null){
             e = new FunctionIdentifier(ctx.lengthOrBalanceStringLiteral().getText(), ctx, expressionContext2Expression(ctx.expression(0)).getValue());
+            result = new Pair(5,e);
         }else if(ctx.identifier()!=null){
             e = new FunctionIdentifier(ctx.identifier().getText(), ctx, expressionContext2Expression(ctx.expression(0)).getValue());
+            result = new Pair(5,e);
+
         }else if(ctx.tupleExpression()!=null){
             e = new TupleExpression(ctx);
             for(int i=0;i<ctx.tupleExpression().expression().size();i++){
@@ -642,7 +661,13 @@ public class ContentParser extends SolidityBaseListener {
         return result;
     }
 
-
+    private static FunctionInheritance userDefinedTypeName2FunctionInheritance(SolidityParser.UserDefinedTypeNameContext ctx){
+        FunctionInheritance f = new FunctionInheritance();
+        for(int i =0; i< ctx.identifier().size();i++){
+            f.alias.add(ctx.identifier(i).getText());
+        }
+        return f;
+    }
 
     private static List<Pair<String, Expression>> callArgument2NameValueList(SolidityParser.CallArgumentsContext ctx){
         List<Pair<String, Expression>>l = new ArrayList<>();

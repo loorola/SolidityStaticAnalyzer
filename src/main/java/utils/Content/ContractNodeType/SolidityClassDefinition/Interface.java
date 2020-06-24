@@ -7,13 +7,13 @@ import java.util.List;
 
 public class Interface extends Instance{
     SolidityParser.InterfaceDefinitionContext ctx;
-    public List<String> inheritanceList = new ArrayList<>();
+    public List<SolidityParser.InheritanceSpecifierContext> inheritanceList = new ArrayList<>();
     public Interface(String alias, SolidityParser.InterfaceDefinitionContext ctx){
         this.alias = alias;
         this.ctx=ctx;
     }
 
-    public void addInheritance(String identifier){
+    public void addInheritance(SolidityParser.InheritanceSpecifierContext identifier){
         inheritanceList.add(identifier);
     }
 }
