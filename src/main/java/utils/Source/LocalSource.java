@@ -8,7 +8,7 @@ import java.util.List;
 public class LocalSource {  //imported local file
     public FileNode fn; //link to the local file that is used in this contract
     public String alias;    //identifier of the source
-    List<SourceModule> srcModule = new ArrayList<>();   //contract or library that is included
+    public List<SourceModule> srcModule = new ArrayList<>();   //contract or library that is included
 
     public LocalSource(FileNode fn, String alias){
         this.fn=fn;

@@ -1,8 +1,10 @@
 package utils.Content;
 
+import javafx.util.Pair;
 import utils.Content.ContractNodeType.BasicContractDefinition.Enum;
 import utils.Content.ContractNodeType.BasicContractDefinition.Struct;
 import utils.Content.ContractNodeType.SolidityClassDefinition.Contract;
+import utils.Content.ContractNodeType.SolidityClassDefinition.Instance;
 import utils.Content.ContractNodeType.SolidityClassDefinition.Interface;
 import utils.Content.ContractNodeType.SolidityClassDefinition.Library;
 

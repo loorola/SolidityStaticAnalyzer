@@ -1,5 +1,6 @@
 package parser.Base;
-// Generated from C:\Users\TempUser\Desktop\proj\fyp\antlr4\Solidity.g4 by ANTLR 4.8
+
+// Generated from Solidity.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -448,15 +449,15 @@ public interface SolidityListener extends ParseTreeListener {
 	 */
 	void exitFunctionName(SolidityParser.FunctionNameContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SolidityParser#newConrtact}.
+	 * Enter a parse tree produced by {@link SolidityParser#newContract}.
 	 * @param ctx the parse tree
 	 */
-	void enterNewConrtact(SolidityParser.NewConrtactContext ctx);
+	void enterNewContract(SolidityParser.NewContractContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SolidityParser#newConrtact}.
+	 * Exit a parse tree produced by {@link SolidityParser#newContract}.
 	 * @param ctx the parse tree
 	 */
-	void exitNewConrtact(SolidityParser.NewConrtactContext ctx);
+	void exitNewContract(SolidityParser.NewContractContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SolidityParser#value}.
 	 * @param ctx the parse tree

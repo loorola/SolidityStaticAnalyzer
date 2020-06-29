@@ -181,6 +181,7 @@ public class ContentParser extends SolidityBaseListener {
     @Override
     public void enterContractDefinition(SolidityParser.ContractDefinitionContext ctx) {
         Contract c = new Contract(ctx.identifier().getText(),ctx);
+        c.initContract(c);
         fn.fileContent.contractList.add(c);
         ctx.inheritanceSpecifier().forEach(x->{
             c.addInheritance(x);
@@ -192,6 +193,7 @@ public class ContentParser extends SolidityBaseListener {
     @Override
     public void enterLibraryDefinition(SolidityParser.LibraryDefinitionContext ctx) {
         Library l = new Library(ctx.identifier().getText(),ctx);
+        l.initLibrary(l);
         fn.fileContent.libraryList.add(l);
 
         parseInsideContract(l,ctx);
@@ -200,6 +202,7 @@ public class ContentParser extends SolidityBaseListener {
     @Override
     public void enterInterfaceDefinition(SolidityParser.InterfaceDefinitionContext ctx) {
         Interface in = new Interface(ctx.identifier().getText(),ctx);
+        in.initInterface(in);
         fn.fileContent.interfaceList.add(in);
         ctx.inheritanceSpecifier().forEach(x->{
             in.addInheritance(x);
@@ -427,6 +430,7 @@ public class ContentParser extends SolidityBaseListener {
             }else{
                 v= new PrimaryVariable(ctx.identifier(i).getText(), ctx.typeName().getText(), visible, isConstant, e);//v.initNormal(ctx.typeName().getText());
             }
+
             stateVariableDeclarationList.add(v);
         }
 
@@ -520,12 +524,14 @@ public class ContentParser extends SolidityBaseListener {
             }else{
                 e=new Equality(ctx,null, t);
             }
+            e.initEquality((Equality) e);
             result = new Pair<Integer, Expression>(0,e);
 
         }else if(ctx.equalOperator()!=null||ctx.lvalueOperator()!=null){
             Expression t1 = expressionContext2Expression(ctx.expression(0)).getValue();
             Expression t2 = expressionContext2Expression(ctx.expression(1)).getValue();
             e=new Equality(ctx, t1,t2);
+            e.initEquality((Equality) e);
             result = new Pair<Integer, Expression>(0,e);
         }else if(ctx.arrayRange()!=null){
             if(ctx.arrayRange().colonOperator()!=null){
@@ -547,6 +553,7 @@ public class ContentParser extends SolidityBaseListener {
             }else{
                 e = new StaticArray(false, null, null, expressionContext2Expression(ctx.expression(0)).getValue(), ctx);
             }
+            e.initStaticArray((StaticArray) e);
             result = new Pair<Integer, Expression>(1,e);
 
         }else if (ctx.newDynamicArray()!=null){
@@ -556,13 +563,13 @@ public class ContentParser extends SolidityBaseListener {
                 e= new NewDynamicArray(ctx.newDynamicArray().typeName().getText(), false, ctx);
             }
             result = new Pair<Integer, Expression>(2,e);
-
+            e.initDynamicArray((NewDynamicArray) e);
         }else if(ctx.environmentalVariable()!=null){
             if(ctx.environmentalVariable().expression()!=null){
                 e = new EnvironmentalVariable(ctx, expressionContext2Expression(ctx.environmentalVariable().expression()).getValue());
             }else e = new EnvironmentalVariable(ctx, null);
             result = new Pair<Integer, Expression>(3,e);
-
+            e.initEnvironmentalVariable((EnvironmentalVariable)e);
         }else if(ctx.callArguments()!=null){
             e = new FunctionCall(ctx.callArguments().getText(), expressionContext2Expression(ctx.expression(0)).getValue(),ctx);
             if(ctx.callArguments().tupleExpression()!=null){
@@ -571,7 +578,7 @@ public class ContentParser extends SolidityBaseListener {
                 ((FunctionCall) e).nameValueList=callArgument2NameValueList(ctx.callArguments());
             }
             result = new Pair<Integer, Expression>(4,e);
-
+            e.initFunctionCall((FunctionCall) e);
         }else if(ctx.functionCall()!=null){
             e = new FunctionCall(ctx.functionCall().functionName().getText(), expressionContext2Expression(ctx.expression(0)).getValue(),ctx);
             if(ctx.functionCall().callArguments().tupleExpression()!=null){
@@ -581,59 +588,61 @@ public class ContentParser extends SolidityBaseListener {
                 ((FunctionCall) e).nameValueList=callArgument2NameValueList(ctx.callArguments());
             }
             result = new Pair<Integer, Expression>(4,e);
-
+            e.initFunctionCall((FunctionCall) e);
         }else if(ctx.lengthOrBalanceStringLiteral()!=null){
             e = new FunctionIdentifier(ctx.lengthOrBalanceStringLiteral().getText(), ctx, expressionContext2Expression(ctx.expression(0)).getValue());
             result = new Pair(5,e);
         }else if(ctx.identifier()!=null){
             e = new FunctionIdentifier(ctx.identifier().getText(), ctx, expressionContext2Expression(ctx.expression(0)).getValue());
             result = new Pair(5,e);
-
+            e.initFunctionIdentifier((FunctionIdentifier) e);
         }else if(ctx.tupleExpression()!=null){
             e = new TupleExpression(ctx);
             for(int i=0;i<ctx.tupleExpression().expression().size();i++){
                 e.expressionList.add(expressionContext2Expression(ctx.tupleExpression().expression(i)).getValue());
             }
             result = new Pair<Integer, Expression>(5,e);
-
+            e.initTupleExpression((TupleExpression) e);
         }else if(ctx.typeExpression()!=null){
             e = new TypeExpression(expressionContext2Expression(ctx.typeExpression().expression()).getValue(), ctx);
             result = new Pair<Integer, Expression>(7,e);
-
+            e.initTypeExpression((TypeExpression) e);
         }else if(ctx.primaryExpression()!=null){
             e = new PrimaryExpression(ctx);
             result = new Pair<Integer, Expression>(8,e);
-
+            e.initPrimaryExpression((PrimaryExpression) e);
         }else if(ctx.typeConversion()!=null){
             e = new TypeConversion(ctx.typeConversion().expression().getText(), ctx);
             result = new Pair<Integer, Expression>(9,e);
-
+            e.initTypeConversion((TypeConversion) e);
         }else if(ctx.powerOperator()!=null){
             e = new OperatorExpression(ctx.powerOperator().getText(), expressionContext2Expression(ctx.expression(0)).getValue(), expressionContext2Expression(ctx.expression(1)).getValue(), ctx);
             result = new Pair<Integer, Expression>(10,e);
-
+            e.initOperatorExpression((OperatorExpression) e);
         }else if(ctx.bitOperator()!=null){
             e = new OperatorExpression(ctx.bitOperator().getText(), expressionContext2Expression(ctx.expression(0)).getValue(), expressionContext2Expression(ctx.expression(1)).getValue(), ctx);
             result = new Pair<Integer, Expression>(10,e);
-
+            e.initOperatorExpression((OperatorExpression) e);
         }else if(ctx.conditionalOperator()!=null){
             e = new OperatorExpression(ctx.conditionalOperator().getText(), expressionContext2Expression(ctx.expression(0)).getValue(), expressionContext2Expression(ctx.expression(1)).getValue(), ctx);
             result = new Pair<Integer, Expression>(10,e);
-
+            e.initOperatorExpression((OperatorExpression) e);
         }else if(ctx.shiftOperator()!=null){
             e = new OperatorExpression(ctx.shiftOperator().getText(), expressionContext2Expression(ctx.expression(0)).getValue(), expressionContext2Expression(ctx.expression(1)).getValue(), ctx);
             result = new Pair<Integer, Expression>(10,e);
-
+            e.initOperatorExpression((OperatorExpression) e);
         }else if(ctx.plusminusOperator()!=null){
             e = new OperatorExpression(ctx.plusminusOperator().getText(), expressionContext2Expression(ctx.expression(0)).getValue(), expressionContext2Expression(ctx.expression(1)).getValue(), ctx);
             result = new Pair<Integer, Expression>(10,e);
-
+            e.initOperatorExpression((OperatorExpression) e);
         }else if(ctx.muldivOperator()!=null){
             e = new OperatorExpression(ctx.muldivOperator().getText(), expressionContext2Expression(ctx.expression(0)).getValue(), expressionContext2Expression(ctx.expression(1)).getValue(), ctx);
             result = new Pair<Integer, Expression>(10,e);
+            e.initOperatorExpression((OperatorExpression) e);
         }else if(ctx.varDeclaration()!=null){
             e = new VarDeclaration(expressionContext2Expression(ctx.varDeclaration().expression()).getValue(),ctx);
             result = new Pair<Integer, Expression>(12,e);
+            e.initVarDeclaration((VarDeclaration) e);
         }else if(ctx.variableDeclaration()!=null){
             String storageLocation = null;
             String alias = null;
@@ -645,18 +654,21 @@ public class ContentParser extends SolidityBaseListener {
             }
             e=new VariableDeclaration(ctx.variableDeclaration().typeName().getText(), storageLocation, alias, ctx);
             result = new Pair<Integer, Expression>(11,e);
+            e.initVariableDeclaration((VariableDeclaration) e);
         }else if(ctx.tupleExpression()!=null){
             e=new TupleExpression(ctx);
             e.expressionList = tupleExpression2ExpressionList(ctx.tupleExpression());
             result = new Pair<>(6, e);
+            e.initTupleExpression((TupleExpression) e);
         }else if(ctx.conditionalExpression()!=null){
             e = new ConditionalExpression(ctx);
             e.expressionList.add(expressionContext2Expression(ctx.conditionalExpression().expression()).getValue());
             result = new Pair<>(14, e);
-
+            e.initConditionalExpression((ConditionalExpression) e);
         }else if(ctx.conditionalStatementShortFormOperator()!=null&&ctx.conditionalStatementShortFormOperator().size()!=0){
             e = new ConditionalDeclaration(expressionContext2Expression(ctx.expression(0)).getValue(),expressionContext2Expression(ctx.expression(1)).getValue(),expressionContext2Expression(ctx.expression(2)).getValue(),ctx);
             result = new Pair<>(13,e);
+            e.initConditionalDeclaration((ConditionalDeclaration) e);
         }
         return result;
     }

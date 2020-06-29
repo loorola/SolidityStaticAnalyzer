@@ -1,5 +1,6 @@
 package parser.Base;
-// Generated from C:\Users\TempUser\Desktop\proj\fyp\antlr4\Solidity.g4 by ANTLR 4.8
+
+// Generated from Solidity.g4 by ANTLR 4.8
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -544,13 +545,13 @@ public class SolidityBaseListener implements SolidityListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNewConrtact(SolidityParser.NewConrtactContext ctx) { }
+	@Override public void enterNewContract(SolidityParser.NewContractContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNewConrtact(SolidityParser.NewConrtactContext ctx) { }
+	@Override public void exitNewContract(SolidityParser.NewContractContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

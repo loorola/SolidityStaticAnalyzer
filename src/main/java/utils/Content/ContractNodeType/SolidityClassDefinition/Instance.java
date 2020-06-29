@@ -1,5 +1,6 @@
 package utils.Content.ContractNodeType.SolidityClassDefinition;
 
+import javafx.util.Pair;
 import utils.Content.ContractNodeType.BaseNode;
 import utils.Content.ContractNodeType.BasicContractDefinition.*;
 import utils.Content.ContractNodeType.BasicContractDefinition.Enum;
@@ -19,6 +20,9 @@ public class Instance extends BaseNode {
     public List<FallbackFunction>fallbackFunctionList = new ArrayList<>();
     public List<Function>functionList = new ArrayList<>();
     public List<Enum>enumList = new ArrayList<>();
+    public Contract contract = null;
+    public Interface anInterface = null;
+    public Library library = null;
 
     public void addEvent(String event){
         eventList.add(event);
@@ -50,5 +54,17 @@ public class Instance extends BaseNode {
 
     public void addUsingFor(UsingFor u){
         usingForList.add(u);
+    }
+
+    public void initContract(Contract c){
+        contract=c;
+    }
+
+    public void initInterface(Interface i){
+        anInterface=i;
+    }
+
+    public void initLibrary(Library l){
+        library = l;
     }
 }

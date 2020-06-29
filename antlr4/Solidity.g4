@@ -153,9 +153,9 @@ mappingSt : 'mapping' '(' typeName '=>' typeName ')' ;
 
 functionCall: functionName (value | gas)* callArguments ;
 
-functionName : identifier | newConrtact | '(' functionName ')' ;
+functionName : identifier | newContract | '(' functionName ')' ;
 
-newConrtact : 'new' identifier ;
+newContract : 'new' (identifier | identifier '.' identifier) ;
 
 value : '.' 'value' '(' expression ')' ;
 
@@ -207,6 +207,7 @@ expression
     | primaryExpression
     | twoPlusMinusOperator expression
     | typeConversion
+    | plusminusOperator expression
     | plusminusOperator expression
     | conditionalExpression
     | expression (conditionalOperator|bitOperator|shiftOperator|plusminusOperator|powerOperator|muldivOperator) expression

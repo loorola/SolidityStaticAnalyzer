@@ -1,5 +1,5 @@
-package parser.Base;
-// Generated from C:\Users\TempUser\Desktop\proj\fyp\antlr4\Solidity.g4 by ANTLR 4.8
+package paser.Base;
+// Generated from Solidity.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
