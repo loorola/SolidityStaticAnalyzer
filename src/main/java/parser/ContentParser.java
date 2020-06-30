@@ -33,7 +33,6 @@ import java.util.List;
 public class ContentParser extends SolidityBaseListener {
     FileNode fn;
 
-
 /*    Source Parser Part    */
     public ContentParser(FileNode fn){
         this.fn=fn;
@@ -94,41 +93,43 @@ public class ContentParser extends SolidityBaseListener {
         FileNode source_node=FileTree.findFileNode(sourcePath.toString());   //find if it is in the same directory
         GlobalSource gs;
         LocalSource s;
+        String alias = null;
+        if(ctx.identifier()!=null) alias = ctx.identifier().getText();
 
         if(ctx.identifier()==null){ //import file by default identifier
             if(source_node==null&&ctx.importAllOrNot().identifier()==null){
                 //source not found from the directory which means it is from the internet
                 //import all
-                gs = new GlobalSource(sourcePath,null);
+                gs = new GlobalSource(sourcePath,alias);
                 fn.globalSourceList.add(gs);
             } else if(source_node==null){
                 //source not found from the directory which means it is from the internet
                 //import one contract or library only
                 gs = new GlobalSource(sourcePath,null);
-                gs.addModule(ctx.importAllOrNot().identifier().getText(),null);
+                gs.addModule(ctx.importAllOrNot().identifier().getText(),alias);
                 fn.globalSourceList.add(gs);
             } else if(ctx.importAllOrNot().identifier()==null){
                 //source can be found from the directory
                 //import all
-                s = new LocalSource(source_node,null);
+                s = new LocalSource(source_node,alias);
                 fn.localSourceList.add(s);
             }else{
                 //source can be found from the directory
                 //import one contract or library only
                 s = new LocalSource(source_node,null);
-                s.addModule(ctx.importAllOrNot().identifier().getText(),null);
+                s.addModule(ctx.importAllOrNot().identifier().getText(),alias);
                 fn.localSourceList.add(s);
             }
         }else{  //import file by using identifier
             if(source_node==null&&ctx.importAllOrNot().identifier()==null){
                 //source not found from the directory which means it is from the internet
                 //import all
-                gs = new GlobalSource(sourcePath,ctx.identifier().getText());
+                gs = new GlobalSource(sourcePath,alias);
                 fn.globalSourceList.add(gs);
             } else if(source_node==null){
                 //source not found from the directory which means it is from the internet
                 //import one contract or library only
-                gs = new GlobalSource(sourcePath,ctx.identifier().getText());
+                gs = new GlobalSource(sourcePath,alias);
                 gs.addModule(ctx.importAllOrNot().identifier().getText(),null);
                 fn.globalSourceList.add(gs);
             } else if(ctx.importAllOrNot().identifier()==null){
@@ -214,6 +215,7 @@ public class ContentParser extends SolidityBaseListener {
 /*    Content Parser Part    */
 
     private void parseInsideContract(Instance n, ParserRuleContext ctx){
+        List<StateVariableDeclaration> stateVariableDeclarationList = new ArrayList<>();
         int count=0;
 
         SolidityParser.ContractPartDefinitionContext tmp = ctx.getChild(SolidityParser.ContractPartDefinitionContext.class,count);
@@ -239,8 +241,16 @@ public class ContentParser extends SolidityBaseListener {
                 n.addStruct(s);
                 System.out.println(s.alias);
             }else if(tmp.stateVariableDeclaration()!=null){
-                n.stateVariableDeclarationList = initMultipleStateVariable(tmp.stateVariableDeclaration());
-                System.out.println(tmp.stateVariableDeclaration().identifier(0).getText());
+                n.stateVariableDeclarationList.addAll(initMultipleStateVariable(tmp.stateVariableDeclaration()));
+                System.out.println(n.stateVariableDeclarationList.size()-1);
+                if(n.stateVariableDeclarationList.size()-1>0) {
+                    n.stateVariableDeclarationList.get(n.stateVariableDeclarationList.size()-1).stateVariableDeclarationList=new ArrayList<>(n.stateVariableDeclarationList.get(n.stateVariableDeclarationList.size()-1).stateVariableDeclarationList);
+                    n.stateVariableDeclarationList.get(n.stateVariableDeclarationList.size()-1).stateVariableDeclarationList.add(n.stateVariableDeclarationList.get(n.stateVariableDeclarationList.size()-1));
+                }
+                System.out.println("StateVariableList:");
+                for(int i=0;i<n.stateVariableDeclarationList.size();i++){
+                    System.out.println(i+" "+n.stateVariableDeclarationList.get(i).alias);
+                }
             }else if(tmp.modifierDefinition()!=null){
                 Modifier m = new Modifier(tmp.modifierDefinition().identifier().getText(),BlockContext2Statement(tmp.modifierDefinition().block()));
                 if(tmp.modifierDefinition().parameterList()!=null){
@@ -418,6 +428,7 @@ public class ContentParser extends SolidityBaseListener {
         for(int i=0;i<ctx.identifier().size();i++){
             if(ctx.typeName().mappingSt()!=null){
                 v=new MappingVariable(ctx.identifier(i).getText(),ctx.typeName().mappingSt().typeName(0).getText(), ctx.typeName().mappingSt().typeName(1).getText(),visible, isConstant,e);
+                v.initMappingVariable((MappingVariable) v);
             }else if(ctx.typeName().functionTypeName()!=null){
                 SolidityParser.FunctionTypeNameContext t = ctx.typeName().functionTypeName();
                 String fv = null;
@@ -427,8 +438,10 @@ public class ContentParser extends SolidityBaseListener {
                 v=new FunctionVariable(ctx.identifier(i).getText(), visible, fs, fv, isConstant, e);
                 if(ctx.typeName().functionTypeName().parameterList()!=null&&ctx.typeName().functionTypeName().parameterList().size()!=0) ((FunctionVariable) v).returnParameterList=functionReturnsParameterListContext2ParameterList(ctx.typeName().functionTypeName().parameterList(1));
                 ((FunctionVariable) v).parameterList=parameterContextList2ParameterList(ctx.typeName().functionTypeName().parameterList(0));
+                v.initFunctionVariable((FunctionVariable) v);
             }else{
-                v= new PrimaryVariable(ctx.identifier(i).getText(), ctx.typeName().getText(), visible, isConstant, e);//v.initNormal(ctx.typeName().getText());
+                v= new PrimaryVariable(ctx.identifier(i).getText(), ctx.typeName(), visible, isConstant, e);//v.initNormal(ctx.typeName().getText());
+                v.initPrimaryVariable((PrimaryVariable) v);
             }
 
             stateVariableDeclarationList.add(v);
@@ -700,5 +713,7 @@ public class ContentParser extends SolidityBaseListener {
         }
         return l;
     }
+
+
 
 }

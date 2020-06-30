@@ -2,12 +2,13 @@ package utils.Content.ContractNodeType.FunctionDefinition;
 
 import parser.Base.SolidityParser;
 import utils.Content.ContractNodeType.BaseNode;
+import utils.Content.ContractNodeType.BasicContractDefinition.BaseFunction;
 import utils.Content.ContractNodeType.Statement.Block;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FallbackFunction extends BaseNode {
+public class FallbackFunction extends BaseFunction {
     public String alias = null;
     public Block block;
     public String stateMutability = null;

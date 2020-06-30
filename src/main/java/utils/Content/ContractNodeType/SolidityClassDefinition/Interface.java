@@ -1,13 +1,16 @@
 package utils.Content.ContractNodeType.SolidityClassDefinition;
 
 import parser.Base.SolidityParser;
+import utils.Context.InheritanceType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Interface extends Instance{
-    SolidityParser.InterfaceDefinitionContext ctx;
+    public SolidityParser.InterfaceDefinitionContext ctx;
     public List<SolidityParser.InheritanceSpecifierContext> inheritanceList = new ArrayList<>();
+    public List<InheritanceType> inheritanceTypeList = new ArrayList<>();
+
     public Interface(String alias, SolidityParser.InterfaceDefinitionContext ctx){
         this.alias = alias;
         this.ctx=ctx;

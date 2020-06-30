@@ -1,4 +1,4 @@
-package paser.Base;
+package parser.Base;
 // Generated from Solidity.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
