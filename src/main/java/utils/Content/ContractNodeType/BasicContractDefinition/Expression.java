@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.locks.Condition;
 
 public class Expression extends BaseNode {
+
     public List<Expression> expressionList = new ArrayList<>();
     public ConditionalDeclaration conditionalDeclaration = null;
     public ConditionalExpression conditionalExpression = null;

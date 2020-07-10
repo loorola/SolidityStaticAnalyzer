@@ -9,5 +9,6 @@ public class RequireStatement extends Statement {
     public RequireStatement(Expression e, SolidityParser.StatementContext ctx) {
         super(ctx, 6);
         this.expressionList.add(e);
+        requireStatement = this;
     }
 }

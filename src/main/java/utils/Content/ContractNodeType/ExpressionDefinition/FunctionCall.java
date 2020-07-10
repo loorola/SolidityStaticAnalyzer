@@ -13,14 +13,13 @@ import java.util.List;
 
 public class FunctionCall extends Expression{
     public Expression front;
-    public Pair<Instance, BaseFunction> functionCallContext;
-    public FunctionCall(String functionName, Expression front, SolidityParser.ExpressionContext ctx) {
+    public SolidityParser.FunctionNameContext functionName;
+    public FunctionCall(SolidityParser.FunctionNameContext functionName, Expression front, SolidityParser.ExpressionContext ctx) {
         super(ctx, 4);
         this.front = front;
         this.functionName=functionName;
     }
 
-    public List<Pair<String, Expression>> nameValueList = new ArrayList<>();
-    public String functionName;
+    public List<Pair<Expression,String>> nameValueList = new ArrayList<>();
 
 }

@@ -10,9 +10,10 @@ import java.util.List;
 
 public class EmitEventStatement extends Statement {
     public Pair<String,String> alias = null;
-    public List<Pair<String, Expression>> nameValueList = new ArrayList<>();
+    public List<Pair<Expression,String>> nameValueList = new ArrayList<>();
 
     public EmitEventStatement(SolidityParser.StatementContext ctx) {
         super(ctx, 5);
+        emitEventStatement = this;
     }
 }

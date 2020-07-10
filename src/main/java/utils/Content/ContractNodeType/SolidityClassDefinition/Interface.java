@@ -11,7 +11,9 @@ public class Interface extends Instance{
     public List<SolidityParser.InheritanceSpecifierContext> inheritanceList = new ArrayList<>();
     public List<InheritanceType> inheritanceTypeList = new ArrayList<>();
 
-    public Interface(String alias, SolidityParser.InterfaceDefinitionContext ctx){
+    public Interface(String filePath, String alias, SolidityParser.InterfaceDefinitionContext ctx){
+        initCFGNode(filePath,alias);
+
         this.alias = alias;
         this.ctx=ctx;
     }

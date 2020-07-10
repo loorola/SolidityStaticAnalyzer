@@ -5,9 +5,10 @@ import utils.Content.ContractNodeType.BasicContractDefinition.Expression;
 import utils.Content.ContractNodeType.BasicContractDefinition.Statement;
 
 public class ConditionalStatement extends Statement {
-    Expression condition;
+    public Expression condition;
     public ConditionalStatement(Expression condition, SolidityParser.StatementContext ctx) {
         super(ctx, 0);
         this.condition = condition;
+        conditionalStatement=this;
     }
 }

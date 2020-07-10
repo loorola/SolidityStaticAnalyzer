@@ -6,5 +6,7 @@ import utils.Content.ContractNodeType.BasicContractDefinition.Expression;
 public class VarDeclaration extends Expression {
     public VarDeclaration(Expression e, SolidityParser.ExpressionContext ctx) {
         super(ctx, 12);
+        expressionList.add(e);
+
     }
 }

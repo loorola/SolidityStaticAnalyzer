@@ -1,10 +1,12 @@
 package utils.Content.ContractNodeType.BasicContractDefinition;
 
 import utils.Content.ContractNodeType.BaseNode;
+import utils.Content.ContractNodeType.SolidityClassDefinition.Instance;
 
 public class UsingFor extends BaseNode {
-    String dataTypeName;
-    String alias;
+    public Instance instance=null;
+    public String dataTypeName;
+    public String alias;
     public UsingFor(String alias, String dataTypeName){
         this.alias=alias;
         this.dataTypeName=dataTypeName;

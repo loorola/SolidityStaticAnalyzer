@@ -6,5 +6,6 @@ import utils.Content.ContractNodeType.BasicContractDefinition.Statement;
 public class SingleStatement extends Statement {
     public SingleStatement(SolidityParser.StatementContext ctx) {
         super(ctx, 3);
+        singleStatement=this;
     }
 }

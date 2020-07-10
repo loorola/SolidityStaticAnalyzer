@@ -6,6 +6,6 @@ import utils.Content.ContractNodeType.BasicContractDefinition.Expression;
 public class EnvironmentalVariable extends Expression {
     public EnvironmentalVariable( SolidityParser.ExpressionContext ctx, Expression e) {
         super(ctx, 3);
-        this.expressionList.add(e);
+        if(e!=null) this.expressionList.add(e);
     }
 }

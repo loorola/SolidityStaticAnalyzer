@@ -7,11 +7,13 @@ import utils.Content.ContractNodeType.BasicContractDefinition.Enum;
 import utils.Content.ContractNodeType.FunctionDefinition.FallbackFunction;
 import utils.Content.ContractNodeType.FunctionDefinition.Function;
 import utils.Content.ContractNodeType.StateVariableDeclaration.StateVariableDeclaration;
+import utils.Context.VariableContext.FunctionCall;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Instance extends BaseNode {
+    public List<FunctionCall> functionCallList = new ArrayList<>();
     public List<String> eventList = new ArrayList<>();
     public List<UsingFor>usingForList=new ArrayList<>();
     public List<Struct>structList = new ArrayList<>();
@@ -23,6 +25,12 @@ public class Instance extends BaseNode {
     public Contract contract = null;
     public Interface anInterface = null;
     public Library library = null;
+
+
+    public void initCFGNode(String filePath, String alias){
+        nodeName=alias;
+        label = filePath;
+    }
 
     public void addEvent(String event){
         eventList.add(event);

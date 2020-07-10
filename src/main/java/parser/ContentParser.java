@@ -42,13 +42,13 @@ public class ContentParser extends SolidityBaseListener {
     public void enterSourceUnit(SolidityParser.SourceUnitContext ctx) {
         Enum e;
         for(int i=0;i<ctx.enumDefinition().size();i++){
-            e=new Enum(ctx.enumDefinition(i).identifier().getText(), ctx.enumDefinition(i));
+            e=new Enum(fn.path,ctx.enumDefinition(i).identifier().getText(), ctx.enumDefinition(i));
             fn.fileContent.enumList.add(e);
         }
 
         Struct s;
         for(int i=0;i<ctx.structDefinition().size();i++){
-            s = new Struct(ctx.structDefinition(i).identifier().getText(), ctx.structDefinition(i));
+            s = new Struct(fn.path,ctx.structDefinition(i).identifier().getText(), ctx.structDefinition(i));
             String storage = null;
             for(int j=0;j<ctx.structDefinition(i).variableDeclaration().size();j++){
                 if(ctx.structDefinition(i).variableDeclaration(j).storageLocation()!=null) storage = ctx.structDefinition(i).variableDeclaration(j).storageLocation().getText();
@@ -61,7 +61,8 @@ public class ContentParser extends SolidityBaseListener {
 
     @Override
     public void enterImportFile(SolidityParser.ImportFileContext ctx) {    //same as import all
-        Path sourcePath = PathResolver.resolveImportedPath(Paths.get(fn.path),ctx.stringLiteral().getText());
+        System.out.println(ctx.stringLiteral().getText());
+        Path sourcePath = PathResolver.resolveImportedPath(Paths.get(fn.path),ctx.stringLiteral().getText().replaceAll("\'",""));
         FileNode source_node= FileTree.findFileNode(sourcePath.toString());   //find if it is in the same directory
         GlobalSource gs;
         LocalSource s;
@@ -89,7 +90,7 @@ public class ContentParser extends SolidityBaseListener {
 
     @Override
     public void enterImportFileAsSymbol(SolidityParser.ImportFileAsSymbolContext ctx) {
-        Path sourcePath = PathResolver.resolveImportedPath(Paths.get(fn.path),ctx.stringLiteral().getText());
+        Path sourcePath = PathResolver.resolveImportedPath(Paths.get(fn.path),ctx.stringLiteral().getText().replaceAll("\'",""));
         FileNode source_node=FileTree.findFileNode(sourcePath.toString());   //find if it is in the same directory
         GlobalSource gs;
         LocalSource s;
@@ -150,7 +151,7 @@ public class ContentParser extends SolidityBaseListener {
 
     @Override
     public void enterImportFileFrom(SolidityParser.ImportFileFromContext ctx) {
-        Path sourcePath = PathResolver.resolveImportedPath(Paths.get(fn.path),ctx.stringLiteral().getText());
+        Path sourcePath = PathResolver.resolveImportedPath(Paths.get(fn.path),ctx.stringLiteral().getText().replaceAll("\'",""));
         FileNode source_node=FileTree.findFileNode(sourcePath.toString());   //find if it is in the same directory
         GlobalSource gs;
         LocalSource s;
@@ -181,41 +182,42 @@ public class ContentParser extends SolidityBaseListener {
 
     @Override
     public void enterContractDefinition(SolidityParser.ContractDefinitionContext ctx) {
-        Contract c = new Contract(ctx.identifier().getText(),ctx);
+        Contract c = new Contract(fn.path,ctx.identifier().getText(),ctx);
         c.initContract(c);
         fn.fileContent.contractList.add(c);
         ctx.inheritanceSpecifier().forEach(x->{
             c.addInheritance(x);
         });
 
-        parseInsideContract(c, ctx);
+        parseInsideContract(c.nodeName, c, ctx);
     }
 
     @Override
     public void enterLibraryDefinition(SolidityParser.LibraryDefinitionContext ctx) {
-        Library l = new Library(ctx.identifier().getText(),ctx);
+        Library l = new Library(fn.path, ctx.identifier().getText(),ctx);
         l.initLibrary(l);
+
         fn.fileContent.libraryList.add(l);
 
-        parseInsideContract(l,ctx);
+        parseInsideContract(l.nodeName,l,ctx);
     }
 
     @Override
     public void enterInterfaceDefinition(SolidityParser.InterfaceDefinitionContext ctx) {
-        Interface in = new Interface(ctx.identifier().getText(),ctx);
+        Interface in = new Interface(fn.path,ctx.identifier().getText(),ctx);
         in.initInterface(in);
+
         fn.fileContent.interfaceList.add(in);
         ctx.inheritanceSpecifier().forEach(x->{
             in.addInheritance(x);
         });
-        parseInsideContract(in,ctx);
+        parseInsideContract(in.nodeName, in,ctx);
 
     }
 
 /*    Content Parser Part    */
 
-    private void parseInsideContract(Instance n, ParserRuleContext ctx){
-        List<StateVariableDeclaration> stateVariableDeclarationList = new ArrayList<>();
+    private void parseInsideContract(String previousNodeName, Instance n, ParserRuleContext ctx){
         int count=0;
 
         SolidityParser.ContractPartDefinitionContext tmp = ctx.getChild(SolidityParser.ContractPartDefinitionContext.class,count);
@@ -231,7 +233,7 @@ public class ContentParser extends SolidityBaseListener {
                 n.addUsingFor(uf);
                 System.out.println("using for");
             }else if(tmp.structDefinition()!=null){
-                Struct s = new Struct(tmp.structDefinition().identifier().getText(), tmp.structDefinition());
+                Struct s = new Struct(n.nodeName,tmp.structDefinition().identifier().getText(), tmp.structDefinition());
                 String storage = null;
                 for(int j=0;j<tmp.structDefinition().variableDeclaration().size();j++){
                     if( tmp.structDefinition().variableDeclaration(j).storageLocation()!=null)storage = tmp.structDefinition().variableDeclaration(j).storageLocation().getText();
@@ -241,7 +243,8 @@ public class ContentParser extends SolidityBaseListener {
                 n.addStruct(s);
                 System.out.println(s.alias);
             }else if(tmp.stateVariableDeclaration()!=null){
-                n.stateVariableDeclarationList.addAll(initMultipleStateVariable(tmp.stateVariableDeclaration()));
+                List<StateVariableDeclaration> s = initMultipleStateVariable(previousNodeName,tmp.stateVariableDeclaration());
+                n.stateVariableDeclarationList.addAll(s);
                 System.out.println(n.stateVariableDeclarationList.size()-1);
                 if(n.stateVariableDeclarationList.size()-1>0) {
                     n.stateVariableDeclarationList.get(n.stateVariableDeclarationList.size()-1).stateVariableDeclarationList=new ArrayList<>(n.stateVariableDeclarationList.get(n.stateVariableDeclarationList.size()-1).stateVariableDeclarationList);
@@ -252,7 +255,7 @@ public class ContentParser extends SolidityBaseListener {
                     System.out.println(i+" "+n.stateVariableDeclarationList.get(i).alias);
                 }
             }else if(tmp.modifierDefinition()!=null){
-                Modifier m = new Modifier(tmp.modifierDefinition().identifier().getText(),BlockContext2Statement(tmp.modifierDefinition().block()));
+                Modifier m = new Modifier(tmp.modifierDefinition().identifier().getText(),BlockContext2Statement(null, null, previousNodeName,tmp.modifierDefinition().block()));
                 if(tmp.modifierDefinition().parameterList()!=null){
                     m.parameterList = parameterContextList2ParameterList(tmp.modifierDefinition().parameterList());
                 }
@@ -264,15 +267,17 @@ public class ContentParser extends SolidityBaseListener {
                 if(tmp.functionDefinition().stateMutability().size()!=0){
                     stateMutability = tmp.functionDefinition().stateMutability(0).getText();
                 }
-                function=new Function(tmp.functionDefinition().functionIdentifier().identifier().getText(),BlockContext2Statement(tmp.functionDefinition().block()),stateMutability,tmp.functionDefinition().visibleType(0).getText());
-
+                String visibleType=null;
+                if(tmp.functionDefinition().visibleType().size()!=0)visibleType = tmp.functionDefinition().visibleType(0).getText();
+                function=new Function(previousNodeName,tmp.functionDefinition().functionIdentifier().identifier().getText(),null,stateMutability,visibleType);
+                if(tmp.functionDefinition().block()!=null) function.block = BlockContext2Statement(null, null, previousNodeName, tmp.functionDefinition().block());
                 function.parameterList=parameterContextList2ParameterList(tmp.functionDefinition().parameterList());
                 if(tmp.functionDefinition().identifier().size()!=0) function.modifierList=functionIdentifier2ModifierList(tmp.functionDefinition());
                 if(tmp.functionDefinition().inheritance()!=null&&tmp.functionDefinition().inheritance().size()!=0){
                     InheritanceList2FunctionInheritanceList(tmp, function);
                 }
 
-                if(tmp.functionDefinition().expression()!=null) function.modifierWithParameterList=functionExpression2ModifierList(tmp.functionDefinition());
+                if(tmp.functionDefinition().expression()!=null) function.derivedconstructorList =functionExpression2ModifierList(tmp.functionDefinition());
                 if(tmp.functionDefinition().returnsParameters()!=null)function.returnParameterList=functionReturnsParameterListContext2ParameterList(tmp.functionDefinition().returnsParameters().parameterList());
                 n.addFunction(function);
                 System.out.println(function.alias);
@@ -283,15 +288,17 @@ public class ContentParser extends SolidityBaseListener {
                 String stateMutability=null;
                 Block b = null;
                 String visibleType = null;
+
                 if(tmp.functionDefinition().visibleType()!=null&&tmp.functionDefinition().visibleType().size()!=0){
                     visibleType=tmp.functionDefinition().visibleType(0).getText();
                 }
                 if(tmp.functionDefinition().stateMutability()!=null&&tmp.functionDefinition().stateMutability().size()!=0){
                     stateMutability=tmp.functionDefinition().getText();
                 }
-                if(tmp.functionDefinition().block()!=null) b = BlockContext2Statement(tmp.functionDefinition().block());
 
-                f=new Function("constructor",b,stateMutability,visibleType);
+                f=new Function(previousNodeName,"constructor",null,stateMutability,visibleType);
+                if(tmp.functionDefinition().block()!=null) b = BlockContext2Statement(null, null,previousNodeName, tmp.functionDefinition().block());
+                f.block=b;
                 SolidityParser.ParameterListContext parameterListContext = tmp.functionDefinition().parameterList();
                 f.parameterList=parameterContextList2ParameterList(parameterListContext);
 
@@ -299,7 +306,7 @@ public class ContentParser extends SolidityBaseListener {
                 if(tmp.functionDefinition().inheritance()!=null&&tmp.functionDefinition().inheritance().size()!=0){
                     InheritanceList2FunctionInheritanceList(tmp, f);
                 }
-                if(tmp.functionDefinition().expression()!=null) f.modifierWithParameterList=functionExpression2ModifierList(tmp.functionDefinition());  //derived constructor as modifier
+                if(tmp.functionDefinition().expression()!=null) f.derivedconstructorList =functionExpression2ModifierList(tmp.functionDefinition());  //derived constructor as modifier
 
                 n.addFunction(f);
                 System.out.println("constructor");
@@ -307,16 +314,18 @@ public class ContentParser extends SolidityBaseListener {
                 FallbackFunction f;
                 String stateMutability=null;
                 Block b = null;
-
+                List<VariableDeclaration> variableDeclarationList = new ArrayList<>();
                 if(tmp.functionFallBackDefinition().stateMutability()!=null&&tmp.functionFallBackDefinition().stateMutability().size()!=0){
                     stateMutability=tmp.functionFallBackDefinition().stateMutability(0).getText();
                 }
 
-                if(tmp.functionFallBackDefinition().block()!=null){
-                    b=BlockContext2Statement(tmp.functionFallBackDefinition().block());
-                }
 
-                f=new FallbackFunction(b);
+                f=new FallbackFunction(previousNodeName, null, tmp.functionFallBackDefinition());
+
+                if(tmp.functionFallBackDefinition().block()!=null){
+                    b=BlockContext2Statement(null, null, f.label,tmp.functionFallBackDefinition().block());
+                }
+                f.block=b;
                 f.alias = tmp.functionFallBackDefinition().fallbackIdentifier().getText();
                 f.stateMutability=stateMutability;
 
@@ -333,7 +342,7 @@ public class ContentParser extends SolidityBaseListener {
                 n.addEvent(tmp.eventDefinition().identifier().getText());
                 System.out.println("Event: "+n.eventList.get(n.eventList.size()-1));
             }else if(tmp.enumDefinition()!=null){
-                Enum e = new Enum(tmp.enumDefinition().identifier().getText(), tmp.enumDefinition());
+                Enum e = new Enum(n.nodeName,tmp.enumDefinition().identifier().getText(), tmp.enumDefinition());
                 tmp.enumDefinition().enumValue().forEach(x->{
                     e.addValue(x.getText());
                 });
@@ -368,15 +377,15 @@ public class ContentParser extends SolidityBaseListener {
         Parameter p;
         for(int i=0;i<ctx.parameter().size();i++){
             if(ctx.parameter(i).storageLocation()!=null&&ctx.parameter(i).identifier()!=null){
-                p=new Parameter(ctx.parameter(i).identifier().getText(),  ctx.parameter(i).typeName().getText(), ctx.parameter(i).storageLocation().getText());
+                p=new Parameter(ctx.parameter(i).identifier().getText(),  ctx.parameter(i).typeName(), ctx.parameter(i).storageLocation().getText());
             }else if(ctx.parameter(i).storageLocation()!=null){
-                p=new Parameter(null, ctx.parameter(i).typeName().getText(), ctx.parameter(i).storageLocation().getText());
+                p=new Parameter(null, ctx.parameter(i).typeName(), ctx.parameter(i).storageLocation().getText());
 
             }else if(ctx.parameter(i).storageLocation()==null&&ctx.parameter(i).identifier()!=null){
-                p=new Parameter(ctx.parameter(i).identifier().getText(),  ctx.parameter(i).typeName().getText(), null);
+                p=new Parameter(ctx.parameter(i).identifier().getText(),  ctx.parameter(i).typeName(), null);
 
             }else{
-                p=new Parameter(null,  ctx.parameter(i).typeName().getText(), null);
+                p=new Parameter(null,  ctx.parameter(i).typeName(), null);
             }
             parameterList.add(p);
         }
@@ -408,7 +417,7 @@ public class ContentParser extends SolidityBaseListener {
     }
 
 
-    private static List<StateVariableDeclaration> initMultipleStateVariable(SolidityParser.StateVariableDeclarationContext ctx){
+    private static List<StateVariableDeclaration> initMultipleStateVariable(String previousNodeName, SolidityParser.StateVariableDeclarationContext ctx){
         List<StateVariableDeclaration> stateVariableDeclarationList = new ArrayList<>();
         StateVariableDeclaration v;
 
@@ -423,11 +432,14 @@ public class ContentParser extends SolidityBaseListener {
         }
 
         Expression e = null;
-        if(ctx.expression()!=null)e=expressionContext2Expression(ctx.expression()).getValue();
+        Pair p = null;
+        if(ctx.expression()!=null)
+        p = expressionContext2Expression(null,null, ctx.expression());
+        if(ctx.expression()!=null)e= (Expression) p.getValue();
 
         for(int i=0;i<ctx.identifier().size();i++){
             if(ctx.typeName().mappingSt()!=null){
-                v=new MappingVariable(ctx.identifier(i).getText(),ctx.typeName().mappingSt().typeName(0).getText(), ctx.typeName().mappingSt().typeName(1).getText(),visible, isConstant,e);
+                v=new MappingVariable(previousNodeName,ctx.identifier(i).getText(),ctx.typeName().mappingSt().typeName(0).getText(), ctx.typeName().mappingSt().typeName(1).getText(),visible, isConstant,e);
                 v.initMappingVariable((MappingVariable) v);
             }else if(ctx.typeName().functionTypeName()!=null){
                 SolidityParser.FunctionTypeNameContext t = ctx.typeName().functionTypeName();
@@ -435,12 +447,12 @@ public class ContentParser extends SolidityBaseListener {
                 String fs = null;
                 if(t.visibleType().size()!=0) fv = t.visibleType(0).getText();
                 if(t.stateMutability().size()!=0) fs = t.stateMutability(0).getText();
-                v=new FunctionVariable(ctx.identifier(i).getText(), visible, fs, fv, isConstant, e);
+                v=new FunctionVariable(previousNodeName,ctx.identifier(i).getText(), visible, fs, fv, isConstant, e);
                 if(ctx.typeName().functionTypeName().parameterList()!=null&&ctx.typeName().functionTypeName().parameterList().size()!=0) ((FunctionVariable) v).returnParameterList=functionReturnsParameterListContext2ParameterList(ctx.typeName().functionTypeName().parameterList(1));
                 ((FunctionVariable) v).parameterList=parameterContextList2ParameterList(ctx.typeName().functionTypeName().parameterList(0));
                 v.initFunctionVariable((FunctionVariable) v);
             }else{
-                v= new PrimaryVariable(ctx.identifier(i).getText(), ctx.typeName(), visible, isConstant, e);//v.initNormal(ctx.typeName().getText());
+                v= new PrimaryVariable(previousNodeName,ctx.identifier(i).getText(), ctx.typeName(), visible, isConstant, e);//v.initNormal(ctx.typeName().getText());
                 v.initPrimaryVariable((PrimaryVariable) v);
             }
 
@@ -451,44 +463,96 @@ public class ContentParser extends SolidityBaseListener {
 
     }
 
-    private static Block BlockContext2Statement(SolidityParser.BlockContext ctx){
+    private Block BlockContext2Statement(Block block, Statement statement, String previousNodeName, SolidityParser.BlockContext ctx){
         Block b = new Block();
+
         for(int i=0;i<ctx.statement().size();i++){
-            b.statementList.add(StatementContext2Statement(ctx.statement(i)));
+            b.statementList.add(StatementContext2Statement(b,statement, previousNodeName,ctx.statement(i)));
         }
         return b;
     }
 
-    private static Statement StatementContext2Statement(SolidityParser.StatementContext ctx){
+    private Statement StatementContext2Statement(Block block, Statement statement, String previousNodeName, SolidityParser.StatementContext ctx){
         Statement s=null;
         if(ctx.block()!=null){
             s = new BlockStatement(ctx);
+            if(statement!=null){
+                s.variableDeclarationList = new ArrayList<>(statement.variableDeclarationList) ;
+
+            }else if(block!=null){
+                s.variableDeclarationList = new ArrayList<>(block.variableDeclarationList) ;
+            }
             for(int i=0;i<ctx.block().statement().size();i++){
-                s.statementList.add(StatementContext2Statement(ctx.block().statement(i)));
+                s.statementList.add(StatementContext2Statement(block, statement,s.label, ctx.block().statement(i)));
             }
         }else if(ctx.ifStatement()!=null){
-            s=new ConditionalStatement(expressionContext2Expression(ctx.ifStatement().condition().expression()).getValue(), ctx);
-            for(int i=0;i<ctx.ifStatement().statement().size();i++){
-                s.statementList.add(StatementContext2Statement(ctx.ifStatement().statement(i)));
+            s=new ConditionalStatement(expressionContext2Expression(null, s, ctx.ifStatement().condition().expression()).getValue(), ctx);
+
+            if(statement!=null){
+                s.variableDeclarationList = new ArrayList<>(statement.variableDeclarationList) ;
+
+            }else if(block!=null){
+                s.variableDeclarationList = new ArrayList<>(block.variableDeclarationList) ;
             }
+
+            for(int i=0;i<ctx.ifStatement().statement().size();i++){
+                s.statementList.add(StatementContext2Statement(null, s, s.label, ctx.ifStatement().statement(i)));
+            }
+
         }else if(ctx.whileStatement()!=null){
-            Expression e = expressionContext2Expression(ctx.whileStatement().condition().expression()).getValue();
+            Expression e = expressionContext2Expression(block, statement, ctx.whileStatement().condition().expression()).getValue();
             s=new ConditionalStatement(e, ctx);
-            s.statementList.add(StatementContext2Statement(ctx.whileStatement().statement()));
+            if(statement!=null){
+                s.variableDeclarationList = new ArrayList<>(statement.variableDeclarationList) ;
+
+            }else if(block!=null){
+                s.variableDeclarationList = new ArrayList<>(block.variableDeclarationList) ;
+            }
+
+            s.statementList.add(StatementContext2Statement(null, s, s.label, ctx.whileStatement().statement()));
         }else if(ctx.forStatement()!=null){
+
             Expression e = null;
-            if(ctx.forStatement().condition()!=null) e = expressionContext2Expression(ctx.forStatement().condition().expression()).getValue() ;
+            if(ctx.forStatement().condition()!=null) e = expressionContext2Expression(block, statement, ctx.forStatement().condition().expression()).getValue() ;
             s = new ConditionalStatement(e, ctx);
             if(ctx.forStatement().expression()!=null&&ctx.forStatement().expression().size()!=0){
                 for(int i=0;i<ctx.forStatement().expression().size();i++){
-                    s.expressionList.add(expressionContext2Expression(ctx.forStatement().expression(i)).getValue());
+                    s.expressionList.add(expressionContext2Expression(block, statement, ctx.forStatement().expression(i)).getValue());
                 }
             }
-            s.statementList.add(StatementContext2Statement(ctx.forStatement().statement()));
+            if(statement!=null){
+                s.variableDeclarationList = new ArrayList<>(statement.variableDeclarationList) ;
+
+            }else if(block!=null){
+                s.variableDeclarationList = new ArrayList<>(block.variableDeclarationList) ;
+            }
+            s.statementList.add(StatementContext2Statement(null, s, s.label, ctx.forStatement().statement()));
         }else if(ctx.doWhileStatement()!=null){
-           s = new ConditionalStatement(expressionContext2Expression(ctx.doWhileStatement().condition().expression()).getValue(), ctx);
+            s = new ConditionalStatement(expressionContext2Expression(block, statement, ctx.doWhileStatement().condition().expression()).getValue(), ctx);
+            if(statement!=null){
+                s.variableDeclarationList = new ArrayList<>(statement.variableDeclarationList) ;
+
+            }else if(block!=null){
+                s.variableDeclarationList = new ArrayList<>(block.variableDeclarationList) ;
+            }
+            s.statementList.add(StatementContext2Statement(null, s, s.label, ctx.doWhileStatement().statement()));
         }else if(ctx.tryCatchStatement()!=null){
-            s = new TryCatchStatement(expressionContext2Expression(ctx.tryCatchStatement().expression()).getValue(),BlockContext2Statement(ctx.tryCatchStatement().block(0)), BlockContext2Statement(ctx.tryCatchStatement().block(1)),ctx);
+            s = new TryCatchStatement(expressionContext2Expression(block, statement,ctx.tryCatchStatement().expression()).getValue(), ctx);
+            ((TryCatchStatement) s).block1=new Block();
+            ((TryCatchStatement) s).block2 = new Block();
+            if(statement!=null)  {
+                ((TryCatchStatement) s).block1.variableDeclarationList=new ArrayList<>(statement.variableDeclarationList);
+                ((TryCatchStatement) s).block2.variableDeclarationList=new ArrayList<>(statement.variableDeclarationList);
+            }else if(block!=null){
+                ((TryCatchStatement) s).block1.variableDeclarationList=new ArrayList<>(block.variableDeclarationList);
+                ((TryCatchStatement) s).block2.variableDeclarationList=new ArrayList<>(block.variableDeclarationList);
+            }
+            for(int i=0;i<ctx.tryCatchStatement().block(0).statement().size();i++){
+                ((TryCatchStatement) s).block1.statementList.add(StatementContext2Statement(((TryCatchStatement) s).block1,null, previousNodeName,ctx.tryCatchStatement().block(0).statement(i)));
+            }
+            for(int i=0;i<ctx.tryCatchStatement().block(1).statement().size();i++){
+                ((TryCatchStatement) s).block2.statementList.add(StatementContext2Statement(((TryCatchStatement) s).block2,null, previousNodeName,ctx.tryCatchStatement().block(1).statement(i)));
+            }
             if(ctx.tryCatchStatement().returnsParameters()!=null){
                 ((TryCatchStatement)s).returnParameterList = parameterContextList2ParameterList(ctx.tryCatchStatement().returnsParameters().parameterList());
             }
@@ -504,6 +568,7 @@ public class ContentParser extends SolidityBaseListener {
                     alias = "nil";
                 }
             }
+
         }else if(ctx.inlineAssemblyStatement()!=null){
             s=new InlineAssemblyStatement(ctx);
         }else if(ctx.placeholderStatement()!=null ||ctx.continueStatement()!=null||ctx.breakStatement()!=null||ctx.returnStatement()!=null||ctx.deleteStatement()!=null){
@@ -512,26 +577,26 @@ public class ContentParser extends SolidityBaseListener {
             s = new ThrowRevertStatement(ctx);
         }else if(ctx.emitEventStatement()!=null){
             s = new EmitEventStatement(ctx);
-            ((EmitEventStatement) s).nameValueList = callArgument2NameValueList(ctx.emitEventStatement().callArguments());
+            ((EmitEventStatement) s).nameValueList = callArgument2NameValueList(block, statement,ctx.emitEventStatement().callArguments());
             if(ctx.emitEventStatement().identifier().size()==1){
                 ((EmitEventStatement) s).alias = new Pair(ctx.emitEventStatement().identifier(0).getText(), null);
             }else ((EmitEventStatement) s).alias = new Pair(ctx.emitEventStatement().identifier(0).getText(), ctx.emitEventStatement().identifier(1).getText());
         }else if(ctx.requireStatement()!=null){
-            s = new RequireStatement(expressionContext2Expression(ctx.requireStatement().expression()).getValue(),ctx);
+            s = new RequireStatement(expressionContext2Expression(block, statement,ctx.requireStatement().expression()).getValue(),ctx);
             if(ctx.requireStatement().stringLiteral()!=null) ((RequireStatement) s).msg = ctx.requireStatement().stringLiteral().getText();
         }else if(ctx.expressionStatement()!=null){
-            s=new ExpressionStatement(expressionContext2Expression(ctx.expressionStatement().expression()).getValue(),ctx);
+            s=new ExpressionStatement(expressionContext2Expression(block, statement,ctx.expressionStatement().expression()).getValue(),ctx);
         }
         return s;
     }
 
-    private static Pair<Integer, Expression> expressionContext2Expression(SolidityParser.ExpressionContext ctx){
+    private static Pair<Integer, Expression> expressionContext2Expression(Block block, Statement statement,SolidityParser.ExpressionContext ctx){
         Pair<Integer, Expression> result=null;
         System.out.println(ctx.getText());
         Expression e=null;
 
         if(ctx.twoPlusMinusOperator()!=null){
-            Expression t = expressionContext2Expression(ctx.expression(0)).getValue();
+            Expression t = expressionContext2Expression(block, statement,ctx.expression(0)).getValue();
             if(ctx.twoPlusMinusOperator().getAltNumber()<ctx.expression(0).getAltNumber()){
                 e=new Equality(ctx, t, null);
             }else{
@@ -539,10 +604,9 @@ public class ContentParser extends SolidityBaseListener {
             }
             e.initEquality((Equality) e);
             result = new Pair<Integer, Expression>(0,e);
-
         }else if(ctx.equalOperator()!=null||ctx.lvalueOperator()!=null){
-            Expression t1 = expressionContext2Expression(ctx.expression(0)).getValue();
-            Expression t2 = expressionContext2Expression(ctx.expression(1)).getValue();
+            Expression t1 = expressionContext2Expression(block, statement,ctx.expression(0)).getValue();
+            Expression t2 = expressionContext2Expression(block, statement,ctx.expression(1)).getValue();
             e=new Equality(ctx, t1,t2);
             e.initEquality((Equality) e);
             result = new Pair<Integer, Expression>(0,e);
@@ -552,19 +616,19 @@ public class ContentParser extends SolidityBaseListener {
                 Expression t2 = null;
                 if(ctx.arrayRange().expression().size()==1){
                     if(ctx.arrayRange().expression(0).getAltNumber()<ctx.arrayRange().colonOperator().getAltNumber()){
-                        t1 = expressionContext2Expression(ctx.arrayRange().expression(0)).getValue();
-                        e = new StaticArray(true,t1, t2, expressionContext2Expression(ctx.expression(0)).getValue(), ctx);
+                        t1 = expressionContext2Expression(block, statement,ctx.arrayRange().expression(0)).getValue();
+                        e = new StaticArray(true,t1, t2, expressionContext2Expression(block, statement,ctx.expression(0)).getValue(), ctx);
                     }else{
-                        t2 = expressionContext2Expression(ctx.arrayRange().expression(0)).getValue();
-                        e = new StaticArray(true,t1, t2, expressionContext2Expression(ctx.expression(0)).getValue(), ctx);
+                        t2 = expressionContext2Expression(block, statement, ctx.arrayRange().expression(0)).getValue();
+                        e = new StaticArray(true,t1, t2, expressionContext2Expression(block, statement,ctx.expression(0)).getValue(), ctx);
                     }
                 }else{
-                    t1=expressionContext2Expression(ctx.arrayRange().expression(0)).getValue();
-                    t2 = expressionContext2Expression(ctx.arrayRange().expression(1)).getValue();
-                    e = new StaticArray(true,t1, t2, expressionContext2Expression(ctx.expression(0)).getValue(), ctx);
+                    t1=expressionContext2Expression(block, statement,ctx.arrayRange().expression(0)).getValue();
+                    t2 = expressionContext2Expression(block, statement,ctx.arrayRange().expression(1)).getValue();
+                    e = new StaticArray(true,t1, t2, expressionContext2Expression(block, statement,ctx.expression(0)).getValue(), ctx);
                 }
             }else{
-                e = new StaticArray(false, null, null, expressionContext2Expression(ctx.expression(0)).getValue(), ctx);
+                e = new StaticArray(false, null, null, expressionContext2Expression(block, statement,ctx.expression(0)).getValue(), ctx);
             }
             e.initStaticArray((StaticArray) e);
             result = new Pair<Integer, Expression>(1,e);
@@ -577,85 +641,110 @@ public class ContentParser extends SolidityBaseListener {
             }
             result = new Pair<Integer, Expression>(2,e);
             e.initDynamicArray((NewDynamicArray) e);
+
         }else if(ctx.environmentalVariable()!=null){
             if(ctx.environmentalVariable().expression()!=null){
-                e = new EnvironmentalVariable(ctx, expressionContext2Expression(ctx.environmentalVariable().expression()).getValue());
+                e = new EnvironmentalVariable(ctx, expressionContext2Expression(block, statement,ctx.environmentalVariable().expression()).getValue());
             }else e = new EnvironmentalVariable(ctx, null);
             result = new Pair<Integer, Expression>(3,e);
             e.initEnvironmentalVariable((EnvironmentalVariable)e);
+
         }else if(ctx.callArguments()!=null){
-            e = new FunctionCall(ctx.callArguments().getText(), expressionContext2Expression(ctx.expression(0)).getValue(),ctx);
+            Expression ee=null;
+            if(ctx.expression().size()!=0){
+                ee=expressionContext2Expression(block, statement,ctx.expression(0)).getValue();
+            }
+            e = new FunctionCall(null, ee,ctx);
             if(ctx.callArguments().tupleExpression()!=null){
-                e.expressionList=tupleExpression2ExpressionList(ctx.callArguments().tupleExpression());
+                e.expressionList=tupleExpression2ExpressionList(block, statement,ctx.callArguments().tupleExpression());
             }else{
-                ((FunctionCall) e).nameValueList=callArgument2NameValueList(ctx.callArguments());
+                ((FunctionCall) e).nameValueList=callArgument2NameValueList(block, statement,ctx.callArguments());
             }
             result = new Pair<Integer, Expression>(4,e);
             e.initFunctionCall((FunctionCall) e);
+
         }else if(ctx.functionCall()!=null){
-            e = new FunctionCall(ctx.functionCall().functionName().getText(), expressionContext2Expression(ctx.expression(0)).getValue(),ctx);
+            Expression ee=null;
+            if(ctx.expression().size()!=0){
+                ee=expressionContext2Expression(block, statement,ctx.expression(0)).getValue();
+            }
+            e = new FunctionCall(ctx.functionCall().functionName(),ee ,ctx);
+
             if(ctx.functionCall().callArguments().tupleExpression()!=null){
                 Expression expression = new TupleExpression(ctx);
                 e.expressionList.add(expression);
             }else{
-                ((FunctionCall) e).nameValueList=callArgument2NameValueList(ctx.callArguments());
+                ((FunctionCall) e).nameValueList=callArgument2NameValueList(block, statement,ctx.callArguments());
             }
             result = new Pair<Integer, Expression>(4,e);
             e.initFunctionCall((FunctionCall) e);
+
         }else if(ctx.lengthOrBalanceStringLiteral()!=null){
-            e = new FunctionIdentifier(ctx.lengthOrBalanceStringLiteral().getText(), ctx, expressionContext2Expression(ctx.expression(0)).getValue());
+            e = new FunctionIdentifier(ctx.lengthOrBalanceStringLiteral().getText(), ctx, expressionContext2Expression(block, statement,ctx.expression(0)).getValue());
             result = new Pair(5,e);
+
         }else if(ctx.identifier()!=null){
-            e = new FunctionIdentifier(ctx.identifier().getText(), ctx, expressionContext2Expression(ctx.expression(0)).getValue());
+            e = new FunctionIdentifier(ctx.identifier().getText(), ctx, expressionContext2Expression(block, statement,ctx.expression(0)).getValue());
             result = new Pair(5,e);
             e.initFunctionIdentifier((FunctionIdentifier) e);
+
         }else if(ctx.tupleExpression()!=null){
             e = new TupleExpression(ctx);
             for(int i=0;i<ctx.tupleExpression().expression().size();i++){
-                e.expressionList.add(expressionContext2Expression(ctx.tupleExpression().expression(i)).getValue());
+                e.expressionList.add(expressionContext2Expression(block, statement,ctx.tupleExpression().expression(i)).getValue());
             }
             result = new Pair<Integer, Expression>(5,e);
             e.initTupleExpression((TupleExpression) e);
+
         }else if(ctx.typeExpression()!=null){
-            e = new TypeExpression(expressionContext2Expression(ctx.typeExpression().expression()).getValue(), ctx);
+            e = new TypeExpression(expressionContext2Expression(block, statement,ctx.typeExpression().expression()).getValue(), ctx);
             result = new Pair<Integer, Expression>(7,e);
             e.initTypeExpression((TypeExpression) e);
+
         }else if(ctx.primaryExpression()!=null){
             e = new PrimaryExpression(ctx);
             result = new Pair<Integer, Expression>(8,e);
             e.initPrimaryExpression((PrimaryExpression) e);
+
         }else if(ctx.typeConversion()!=null){
             e = new TypeConversion(ctx.typeConversion().expression().getText(), ctx);
             result = new Pair<Integer, Expression>(9,e);
             e.initTypeConversion((TypeConversion) e);
         }else if(ctx.powerOperator()!=null){
-            e = new OperatorExpression(ctx.powerOperator().getText(), expressionContext2Expression(ctx.expression(0)).getValue(), expressionContext2Expression(ctx.expression(1)).getValue(), ctx);
+            e = new OperatorExpression(ctx.powerOperator().getText(), expressionContext2Expression(block, statement,ctx.expression(0)).getValue(), expressionContext2Expression(block, statement,ctx.expression(1)).getValue(), ctx);
             result = new Pair<Integer, Expression>(10,e);
             e.initOperatorExpression((OperatorExpression) e);
+
         }else if(ctx.bitOperator()!=null){
-            e = new OperatorExpression(ctx.bitOperator().getText(), expressionContext2Expression(ctx.expression(0)).getValue(), expressionContext2Expression(ctx.expression(1)).getValue(), ctx);
+            e = new OperatorExpression(ctx.bitOperator().getText(), expressionContext2Expression(block, statement,ctx.expression(0)).getValue(), expressionContext2Expression(block, statement,ctx.expression(1)).getValue(), ctx);
             result = new Pair<Integer, Expression>(10,e);
             e.initOperatorExpression((OperatorExpression) e);
+
         }else if(ctx.conditionalOperator()!=null){
-            e = new OperatorExpression(ctx.conditionalOperator().getText(), expressionContext2Expression(ctx.expression(0)).getValue(), expressionContext2Expression(ctx.expression(1)).getValue(), ctx);
+            e = new OperatorExpression(ctx.conditionalOperator().getText(), expressionContext2Expression(block, statement,ctx.expression(0)).getValue(), expressionContext2Expression(block, statement,ctx.expression(1)).getValue(), ctx);
             result = new Pair<Integer, Expression>(10,e);
             e.initOperatorExpression((OperatorExpression) e);
+
         }else if(ctx.shiftOperator()!=null){
-            e = new OperatorExpression(ctx.shiftOperator().getText(), expressionContext2Expression(ctx.expression(0)).getValue(), expressionContext2Expression(ctx.expression(1)).getValue(), ctx);
+            e = new OperatorExpression(ctx.shiftOperator().getText(), expressionContext2Expression(block, statement,ctx.expression(0)).getValue(), expressionContext2Expression(block, statement,ctx.expression(1)).getValue(), ctx);
             result = new Pair<Integer, Expression>(10,e);
             e.initOperatorExpression((OperatorExpression) e);
+
         }else if(ctx.plusminusOperator()!=null){
-            e = new OperatorExpression(ctx.plusminusOperator().getText(), expressionContext2Expression(ctx.expression(0)).getValue(), expressionContext2Expression(ctx.expression(1)).getValue(), ctx);
+            e = new OperatorExpression(ctx.plusminusOperator().getText(), expressionContext2Expression(block, statement,ctx.expression(0)).getValue(), expressionContext2Expression(block, statement,ctx.expression(1)).getValue(), ctx);
             result = new Pair<Integer, Expression>(10,e);
             e.initOperatorExpression((OperatorExpression) e);
+
         }else if(ctx.muldivOperator()!=null){
-            e = new OperatorExpression(ctx.muldivOperator().getText(), expressionContext2Expression(ctx.expression(0)).getValue(), expressionContext2Expression(ctx.expression(1)).getValue(), ctx);
+            e = new OperatorExpression(ctx.muldivOperator().getText(), expressionContext2Expression(block, statement,ctx.expression(0)).getValue(), expressionContext2Expression(block, statement,ctx.expression(1)).getValue(), ctx);
             result = new Pair<Integer, Expression>(10,e);
             e.initOperatorExpression((OperatorExpression) e);
+
         }else if(ctx.varDeclaration()!=null){
-            e = new VarDeclaration(expressionContext2Expression(ctx.varDeclaration().expression()).getValue(),ctx);
+            e = new VarDeclaration(expressionContext2Expression( block, statement,ctx.varDeclaration().expression()).getValue(),ctx);
             result = new Pair<Integer, Expression>(12,e);
             e.initVarDeclaration((VarDeclaration) e);
+
         }else if(ctx.variableDeclaration()!=null){
             String storageLocation = null;
             String alias = null;
@@ -665,24 +754,31 @@ public class ContentParser extends SolidityBaseListener {
                     storageLocation = ctx.variableDeclaration().storageLocation().getText();
                 }
             }
-            e=new VariableDeclaration(ctx.variableDeclaration().typeName().getText(), storageLocation, alias, ctx);
+
+
+            e=new VariableDeclaration(ctx.variableDeclaration().typeName(), storageLocation, alias, ctx);
+            if(statement!=null){
+                statement.variableDeclarationList.add((VariableDeclaration) e);
+            }else block.variableDeclarationList.add((VariableDeclaration) e);
             result = new Pair<Integer, Expression>(11,e);
             e.initVariableDeclaration((VariableDeclaration) e);
         }else if(ctx.tupleExpression()!=null){
             e=new TupleExpression(ctx);
-            e.expressionList = tupleExpression2ExpressionList(ctx.tupleExpression());
+            e.expressionList = tupleExpression2ExpressionList(block, statement,ctx.tupleExpression());
             result = new Pair<>(6, e);
             e.initTupleExpression((TupleExpression) e);
+
         }else if(ctx.conditionalExpression()!=null){
             e = new ConditionalExpression(ctx);
-            e.expressionList.add(expressionContext2Expression(ctx.conditionalExpression().expression()).getValue());
+            e.expressionList.add(expressionContext2Expression(block, statement,ctx.conditionalExpression().expression()).getValue());
             result = new Pair<>(14, e);
             e.initConditionalExpression((ConditionalExpression) e);
         }else if(ctx.conditionalStatementShortFormOperator()!=null&&ctx.conditionalStatementShortFormOperator().size()!=0){
-            e = new ConditionalDeclaration(expressionContext2Expression(ctx.expression(0)).getValue(),expressionContext2Expression(ctx.expression(1)).getValue(),expressionContext2Expression(ctx.expression(2)).getValue(),ctx);
+            e = new ConditionalDeclaration(expressionContext2Expression(block, statement,ctx.expression(0)).getValue(),expressionContext2Expression(block, statement,ctx.expression(1)).getValue(),expressionContext2Expression(block, statement,ctx.expression(2)).getValue(),ctx);
             result = new Pair<>(13,e);
             e.initConditionalDeclaration((ConditionalDeclaration) e);
         }
+
         return result;
     }
 
@@ -694,21 +790,26 @@ public class ContentParser extends SolidityBaseListener {
         return f;
     }
 
-    private static List<Pair<String, Expression>> callArgument2NameValueList(SolidityParser.CallArgumentsContext ctx){
-        List<Pair<String, Expression>>l = new ArrayList<>();
-        Pair<String, Expression> p;
+    private static List<Pair<Expression,String>> callArgument2NameValueList(Block block,Statement statement, SolidityParser.CallArgumentsContext ctx){
+        List<Pair<Expression,String>>l = new ArrayList<>();
+        Pair<Expression,String > p;
         for(int i=0;i<ctx.nameValueList().expression().size();i++){
-            p = new Pair<String, Expression>(ctx.nameValueList().identifier(i).getText(), expressionContext2Expression(ctx.nameValueList().expression(i)).getValue());
+            p = new Pair(expressionContext2Expression(block, statement,ctx.nameValueList().expression(i)).getValue(),ctx.nameValueList().identifier(i).getText());
+            l.add(p);
+        }
+
+        for(int i=0;i<ctx.tupleExpression().expression().size();i++){
+            p = new Pair(expressionContext2Expression(block, statement, ctx.tupleExpression().expression(i)),null);
             l.add(p);
         }
         return l;
     }
 
-    private static List<Expression> tupleExpression2ExpressionList(SolidityParser.TupleExpressionContext ctx){
+    private static List<Expression> tupleExpression2ExpressionList(Block block, Statement statement,SolidityParser.TupleExpressionContext ctx){
         List<Expression>l = new ArrayList<>();
         Expression e;
         for(int i=0;i<ctx.expression().size();i++){
-            e=expressionContext2Expression(ctx.expression(i)).getValue();
+            e=expressionContext2Expression(block, statement,ctx.expression(i)).getValue();
             l.add(e);
         }
         return l;

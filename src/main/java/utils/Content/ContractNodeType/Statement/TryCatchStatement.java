@@ -14,12 +14,10 @@ public class TryCatchStatement extends Statement {
     public String catchAlias=null;
     public List<Pair<String,List<Parameter>>> catchParameterList = new ArrayList<>();
     public Pair<String, String> exceptionText;
-    public Block block1;
-    public Block block2;
-    public TryCatchStatement(Expression e, Block b1, Block b2, SolidityParser.StatementContext ctx){
+    public Block block1 = new Block();
+    public Block block2 = new Block();
+    public TryCatchStatement(Expression e,  SolidityParser.StatementContext ctx){
         super(ctx, 1);
         this.expressionList.add(e);
-        block1=b1;
-        block2 = b2;
     }
 }

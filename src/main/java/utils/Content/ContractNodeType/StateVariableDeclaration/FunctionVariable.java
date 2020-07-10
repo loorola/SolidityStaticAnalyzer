@@ -12,11 +12,12 @@ public class FunctionVariable extends StateVariableDeclaration {
     public List<Parameter> parameterList = new ArrayList<>();
 
     public String functionVisibleType;
-    public String stateMutability = null;
+    public String stateMutability;
 
-    public FunctionVariable(String alias, String visibleType, String stateMutability, String functionVisibleType, boolean isConstant, Expression e){
-       super(alias, visibleType, isConstant, e);
-       this.stateMutability=stateMutability;
-       this.functionVisibleType = functionVisibleType;
+    public FunctionVariable(String previousNodeName,String alias, String visibleType, String stateMutability, String functionVisibleType, boolean isConstant, Expression e){
+        super(previousNodeName, alias, visibleType, isConstant, e);
+        nodeName = "function "+alias+stateMutability+" "+visibleType+isConstant;
+        this.stateMutability=stateMutability;
+        this.functionVisibleType = functionVisibleType;
     }
 }

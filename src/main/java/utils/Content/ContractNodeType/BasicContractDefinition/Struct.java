@@ -22,7 +22,9 @@ public class Struct extends BaseNode {
 
     public List<VariableDeclaration> variableDeclarationList = new ArrayList<>();
     public SolidityParser.StructDefinitionContext ctx;
-    public Struct(String alias, SolidityParser.StructDefinitionContext ctx){
+    public Struct(String previousNodeName, String alias, SolidityParser.StructDefinitionContext ctx){
+        nodeName="struct "+alias;
+        label=previousNodeName+alias;
         this.alias = alias;
         this.ctx = ctx;
     }
@@ -30,6 +32,10 @@ public class Struct extends BaseNode {
     public void addVariableDeclaration(String dataType, String storageLocation, String alias, SolidityParser.VariableDeclarationContext ctx){
         VariableDeclaration v = new VariableDeclaration(dataType, storageLocation, alias, ctx);
         variableDeclarationList.add(v);
+    }
+
+    public void initNode(String previousNodeName){
+
     }
 
     @Override

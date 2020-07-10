@@ -6,5 +6,6 @@ import utils.Content.ContractNodeType.BasicContractDefinition.Statement;
 public class ThrowRevertStatement extends Statement {
     public ThrowRevertStatement(SolidityParser.StatementContext ctx) {
         super(ctx, 4);
+        throwRevertStatement = this;
     }
 }

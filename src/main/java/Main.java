@@ -25,6 +25,8 @@ public class Main {
             init(); //create report and tmp folders
             Unzip(args[0]); //unzip the files
             ProjectParser.init(ft);
+            ProjectParser.initContextSensitiveParser(ft);
+            ProjectParser.initCFG(ft);
             //CFG.generateCFG(ft.root);
             //ExposureReport.generateCFG(ft.root);
             /*

@@ -7,5 +7,6 @@ public class InlineAssemblyStatement extends Statement {
 
     public InlineAssemblyStatement(SolidityParser.StatementContext ctx) {
         super(ctx, 2);
+        inlineAssemblyStatement = this;
     }
 }
