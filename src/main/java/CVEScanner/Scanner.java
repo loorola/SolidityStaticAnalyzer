@@ -1,21 +1,52 @@
 package CVEScanner;
 
+import CVEScanner.CVE.Reentrancy;
 import config.FileDirectory;
 import org.antlr.v4.runtime.ANTLRInputStream;
+import parser.Base.SolidityParser;
+import utils.Content.ContractNodeType.BasicContractDefinition.BaseFunction;
+import utils.Content.ContractNodeType.BasicContractDefinition.Expression;
+import utils.Content.ContractNodeType.BasicContractDefinition.Statement;
 import utils.Content.ContractNodeType.SolidityClassDefinition.Instance;
+import utils.Content.ContractNodeType.Statement.Block;
 import utils.File.FileNode;
 import utils.File.FileTree;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.LineNumberReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
+import java.util.stream.Stream;
 
 public class Scanner {
-    static FileTree ft;
+    public static FileTree ft;
 
-    public static void scanCode(){
+    public Scanner (FileTree ft){
+        this.ft = ft;
+    }
 
+
+    public static int FileMatchLine(String txt,FileNode fn) throws Exception{
+        List<String> list=new ArrayList<>();
+        Path p= FileDirectory.tmp_root.toPath().resolve(fn.path);
+        int count = 1;
+        LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(p.toString()));
+        String line=null;
+        while((line=lineNumberReader.readLine())!=null){
+            if(line.contains(txt)) {
+                break;
+            }
+            count++;
+        }
+        if (lineNumberReader != null){
+            lineNumberReader.close();
+        }
+        return count;
     }
 
     private static void resetInstanceFunctionModifier(Instance in){

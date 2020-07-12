@@ -4,8 +4,8 @@ import utils.Content.ContractNodeType.BasicContractDefinition.BaseFunction;
 import utils.Content.ContractNodeType.SolidityClassDefinition.Instance;
 
 public class FunctionCall {
-    Instance instance;
-    BaseFunction baseFunction = null;
+    public Instance instance;
+    public BaseFunction baseFunction = null;
 
     public FunctionCall(Instance instance, BaseFunction baseFunction){
         this.instance=instance;

@@ -1,6 +1,11 @@
+import CVEScanner.CVE.Reentrancy;
+import CVEScanner.Scanner;
 import config.FileDirectory;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import parser.Base.SolidityLexer;
+import parser.Base.SolidityParser;
 import parser.ProjectParser;
 import report.CFG;
 import report.ExposureReport;
@@ -12,6 +17,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import java.util.Iterator;
 import java.util.Stack;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -25,8 +31,27 @@ public class Main {
             init(); //create report and tmp folders
             Unzip(args[0]); //unzip the files
             ProjectParser.init(ft);
-            ProjectParser.initContextSensitiveParser(ft);
-            ProjectParser.initCFG(ft);
+
+            Stack<FileNode> s=new Stack<FileNode>();
+            s.push(ft.root);
+            FileNode fn;
+            File tf;
+            while(!s.isEmpty()){
+                fn=s.pop();
+                if(fn.path!=null){
+                    tf=new File(fn.path);
+                    if(!tf.isDirectory()){
+                        Reentrancy r = new Reentrancy(fn);
+                        r.scan();
+                    }
+                }
+                Iterator<FileNode> f = fn.children.iterator();
+                while(f.hasNext()){
+                    s.push(f.next());
+                }
+            }
+            //ProjectParser.initContextSensitiveParser(ft);
+            //ProjectParser.initCFG(ft);
             //CFG.generateCFG(ft.root);
             //ExposureReport.generateCFG(ft.root);
             /*

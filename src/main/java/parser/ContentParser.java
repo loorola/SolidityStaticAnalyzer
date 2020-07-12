@@ -270,7 +270,9 @@ public class ContentParser extends SolidityBaseListener {
                 String visibleType=null;
                 if(tmp.functionDefinition().visibleType().size()!=0)visibleType = tmp.functionDefinition().visibleType(0).getText();
                 function=new Function(previousNodeName,tmp.functionDefinition().functionIdentifier().identifier().getText(),null,stateMutability,visibleType);
-                if(tmp.functionDefinition().block()!=null) function.block = BlockContext2Statement(null, null, previousNodeName, tmp.functionDefinition().block());
+                if(tmp.functionDefinition().block()!=null) {function.block = BlockContext2Statement(null, null, previousNodeName, tmp.functionDefinition().block());
+                function.block.blockContext=tmp.functionDefinition().block();
+                }
                 function.parameterList=parameterContextList2ParameterList(tmp.functionDefinition().parameterList());
                 if(tmp.functionDefinition().identifier().size()!=0) function.modifierList=functionIdentifier2ModifierList(tmp.functionDefinition());
                 if(tmp.functionDefinition().inheritance()!=null&&tmp.functionDefinition().inheritance().size()!=0){
@@ -297,7 +299,7 @@ public class ContentParser extends SolidityBaseListener {
                 }
 
                 f=new Function(previousNodeName,"constructor",null,stateMutability,visibleType);
-                if(tmp.functionDefinition().block()!=null) b = BlockContext2Statement(null, null,previousNodeName, tmp.functionDefinition().block());
+                if(tmp.functionDefinition().block()!=null) {b = BlockContext2Statement(null, null,previousNodeName, tmp.functionDefinition().block()); b.blockContext=tmp.functionDefinition().block();}
                 f.block=b;
                 SolidityParser.ParameterListContext parameterListContext = tmp.functionDefinition().parameterList();
                 f.parameterList=parameterContextList2ParameterList(parameterListContext);
@@ -324,6 +326,7 @@ public class ContentParser extends SolidityBaseListener {
 
                 if(tmp.functionFallBackDefinition().block()!=null){
                     b=BlockContext2Statement(null, null, f.label,tmp.functionFallBackDefinition().block());
+                    b.blockContext = tmp.functionFallBackDefinition().block();
                 }
                 f.block=b;
                 f.alias = tmp.functionFallBackDefinition().fallbackIdentifier().getText();

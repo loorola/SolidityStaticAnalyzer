@@ -16,6 +16,7 @@ public class Modifier extends BaseFunction{
     public Modifier(String alias, Block b){
         this.alias=alias;
         this.block = b;
+        modifier=this;
     }
 
 }

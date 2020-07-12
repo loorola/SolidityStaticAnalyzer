@@ -17,6 +17,7 @@ public class BaseFunction extends BaseNode {
     public List<FunctionInheritance> functionInheritanceList = new ArrayList<>();
     public Function function=null;
     public FallbackFunction fallbackFunction = null;
+    public Modifier modifier = null;
     public List<FunctionCall> functionCallList = new ArrayList<>();
     public List<VariableDeclaration> variableDeclarationList = new ArrayList<>();
     public boolean visited = false;
