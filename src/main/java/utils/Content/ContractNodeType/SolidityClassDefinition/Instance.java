@@ -8,6 +8,7 @@ import utils.Content.ContractNodeType.FunctionDefinition.FallbackFunction;
 import utils.Content.ContractNodeType.FunctionDefinition.Function;
 import utils.Content.ContractNodeType.StateVariableDeclaration.StateVariableDeclaration;
 import utils.Context.VariableContext.FunctionCall;
+import utils.File.FileNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public class Instance extends BaseNode {
     public Contract contract = null;
     public Interface anInterface = null;
     public Library library = null;
-
+    public FileNode fn = null;
 
     public void initCFGNode(String filePath, String alias){
         nodeName=alias;

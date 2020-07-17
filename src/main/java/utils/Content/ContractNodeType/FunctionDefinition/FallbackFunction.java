@@ -16,8 +16,9 @@ public class FallbackFunction extends BaseFunction {
     public SolidityParser.InheritanceContext inheritanceContext = null;
     public List<String> returnParameterList = new ArrayList<>();
     public FallbackFunction(String previousNodeName, Block block, SolidityParser.FunctionFallBackDefinitionContext ctx){
-        nodeName = ctx.fallbackIdentifier().getText();
-        label=previousNodeName+nodeName;
+        if(ctx.fallbackIdentifier()!=null) nodeName = ctx.fallbackIdentifier().getText();
+        else nodeName = "fallback";
+        label=previousNodeName;
         this.block = block;
         fallbackFunction=this;
     }

@@ -1,23 +1,20 @@
-import CVEScanner.CVE.Reentrancy;
-import CVEScanner.Scanner;
+import CVEScanner.FileScanner;
 import config.FileDirectory;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import parser.Base.SolidityLexer;
-import parser.Base.SolidityParser;
 import parser.ProjectParser;
 import report.CFG;
-import report.ExposureReport;
 
+import utils.Content.ContractNodeType.BasicContractDefinition.Expression;
 import utils.File.FileNode;
 import utils.File.FileTree;
 
+import java.awt.*;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Stack;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -28,45 +25,65 @@ public class Main {
 
     public static void main(String []args){
         try{
-            init(); //create report and tmp folders
-            Unzip(args[0]); //unzip the files
-            ProjectParser.init(ft);
+            boolean exit = false;
+            boolean exitProgram = false;
+            System.out.println("Welcome to Solidity Static Analyzer!");
+            while(!exitProgram){
+                System.out.println("Please enter a .sol file name or zip file name!");
+                exit = false;
+                Scanner in=new Scanner(System.in);
+                String filePath = in.next();
+                if(filePath==null||filePath.length()==0) {
+                    System.out.println("Please enter a .sol file name or zip file name!");
+                    continue;
+                }
+                System.out.println("initializing...");
+                init(); //create report and tmp folders
 
-            Stack<FileNode> s=new Stack<FileNode>();
-            s.push(ft.root);
-            FileNode fn;
-            File tf;
-            while(!s.isEmpty()){
-                fn=s.pop();
-                if(fn.path!=null){
-                    tf=new File(fn.path);
-                    if(!tf.isDirectory()){
-                        Reentrancy r = new Reentrancy(fn);
-                        r.scan();
+                if(filePath.toString().toLowerCase().endsWith(".zip")){
+                    Unzip(filePath); //unzip the files
+                }else if(filePath.toString().toLowerCase().endsWith(".sol")){
+                    MoveSolFile(filePath);
+
+                }else{
+                    System.out.println("Please enter a .sol file name or zip file name!");
+                    continue;
+                }
+
+
+                System.out.println("Generating AST...");
+                ProjectParser.init(ft);
+                System.out.println("Generating CFG...");
+                ProjectParser.initContextSensitiveParser(ft);
+                ProjectParser.initCFG(ft);
+                while(!exit){
+                    System.out.println("Select your option: ");
+                    System.out.println("\t0: Generate AST");
+                    System.out.println("\t1: Generate CFG");
+                    System.out.println("\t2: Scan Exposure");
+                    System.out.println("\t3: Scanning Option");
+                    System.out.println("\t4: New File/Zip File...");
+                    System.out.println("\tOther: Exit the Program");
+                    Scanner scanner = new Scanner(System.in);
+                    int command = scanner.nextInt();
+                    if(command>=0&&command<=3){
+                        userOption(command);
+                    }else if(command==4){
+                        exit =true;
+                        break;
+                    }else {
+                        exitProgram=true;
+                        System.exit(0);
                     }
+
                 }
-                Iterator<FileNode> f = fn.children.iterator();
-                while(f.hasNext()){
-                    s.push(f.next());
-                }
+
             }
-            //ProjectParser.initContextSensitiveParser(ft);
-            //ProjectParser.initCFG(ft);
-            //CFG.generateCFG(ft.root);
-            //ExposureReport.generateCFG(ft.root);
-            /*
-            ZipFile zip = new ZipFile(args[0]);
-            zip.stream().map(ZipEntry::getName).forEach((n)->{
-                Path tmp = Paths.get(n);
-                if(Files.isDirectory(tmp)){
-                }
-                if(FilenameUtils.isExtension(n,"sol")&&!tmp.subpath(0,1).toString().equals("__MACOSX"))System.out.println(n);
-            });
-            */
 
         }catch(Exception e){
             System.out.println(e.toString());
         }
+        System.exit(0);
     }
 
     private static void init() throws Exception{
@@ -76,6 +93,31 @@ public class Main {
             FileDirectory.tmp_root.mkdir();
         }
         if(!FileDirectory.report_root.exists()) FileDirectory.report_root.mkdir();
+        if(!FileDirectory.ast_root.exists()) FileDirectory.ast_root.mkdir();
+        if(!FileDirectory.cfg_root.exists()) FileDirectory.cfg_root.mkdir();
+        if(!FileDirectory.scanning_config_root.exists()) FileDirectory.scanning_config_root.mkdir();
+
+    }
+
+    private static void MoveSolFile(String filePath) throws Exception{
+        Path fileName = Paths.get(filePath).getFileName();
+        try{
+            InputStream in = new BufferedInputStream(
+                    new FileInputStream(filePath));
+            String path = FileDirectory.tmp_root.toPath().resolve(fileName).toString();
+            OutputStream out = new BufferedOutputStream(
+                    new FileOutputStream(path));
+                byte[] buffer = new byte[1024];
+                int lengthRead;
+                while ((lengthRead = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, lengthRead);
+                    out.flush();
+                }
+            ft = new FileTree();
+            ft.addFileNode(ft.root,fileName.toString());
+        }catch(Exception e){
+            System.out.println(e);
+        }
     }
 
     private static void Unzip(String zipIn) throws Exception{
@@ -149,5 +191,40 @@ public class Main {
             bos.write(bytesIn, 0, read);
         }
         bos.close();
+    }
+
+    private static void userOption(int cmd) throws Exception {
+        switch(cmd){
+            case 0:
+                System.out.println("Building AST...");
+                ProjectParser.viewTree();
+                System.out.println("Done!");
+
+                break;
+            case 1:
+                System.out.println("Building CFG...");
+                CFG cfg = new CFG(ft.root);
+                System.out.println("Done!");
+
+                break;
+            case 2:
+                System.out.println("Scanning...");
+                FileScanner f = new FileScanner(ft);
+                FileScanner.scan();
+                System.out.println("Done!");
+
+                break;
+            case 3:
+                System.out.println("Opening File...");
+                File file = new File(FileDirectory.scanning_config_root.toPath().resolve("scanning.xml").toString());
+                if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+                    String command = "rundll32 url.dll,FileProtocolHandler " + file.getCanonicalPath();
+                    Runtime.getRuntime().exec(command);
+                }
+                else {
+                    Desktop.getDesktop().edit(file);
+                }
+                break;
+        }
     }
 }

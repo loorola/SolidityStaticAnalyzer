@@ -40,6 +40,7 @@ public class ContentParser extends SolidityBaseListener {
 
     @Override
     public void enterSourceUnit(SolidityParser.SourceUnitContext ctx) {
+        fn.srcCTX=ctx;
         Enum e;
         for(int i=0;i<ctx.enumDefinition().size();i++){
             e=new Enum(fn.path,ctx.enumDefinition(i).identifier().getText(), ctx.enumDefinition(i));
@@ -61,7 +62,6 @@ public class ContentParser extends SolidityBaseListener {
 
     @Override
     public void enterImportFile(SolidityParser.ImportFileContext ctx) {    //same as import all
-        System.out.println(ctx.stringLiteral().getText());
         Path sourcePath = PathResolver.resolveImportedPath(Paths.get(fn.path),ctx.stringLiteral().getText().replaceAll("\'",""));
         FileNode source_node= FileTree.findFileNode(sourcePath.toString());   //find if it is in the same directory
         GlobalSource gs;
@@ -184,34 +184,35 @@ public class ContentParser extends SolidityBaseListener {
     public void enterContractDefinition(SolidityParser.ContractDefinitionContext ctx) {
         Contract c = new Contract(fn.path,ctx.identifier().getText(),ctx);
         c.initContract(c);
+        c.fn = this.fn;
         fn.fileContent.contractList.add(c);
         ctx.inheritanceSpecifier().forEach(x->{
             c.addInheritance(x);
         });
 
-        parseInsideContract(c.nodeName, c, ctx);
+        parseInsideContract(c.label+"/"+c.nodeName, c, ctx);
     }
 
     @Override
     public void enterLibraryDefinition(SolidityParser.LibraryDefinitionContext ctx) {
         Library l = new Library(fn.path, ctx.identifier().getText(),ctx);
         l.initLibrary(l);
-
+        l.fn=this.fn;
         fn.fileContent.libraryList.add(l);
 
-        parseInsideContract(l.nodeName,l,ctx);
+        parseInsideContract(l.label+"/"+l.nodeName,l,ctx);
     }
 
     @Override
     public void enterInterfaceDefinition(SolidityParser.InterfaceDefinitionContext ctx) {
         Interface in = new Interface(fn.path,ctx.identifier().getText(),ctx);
         in.initInterface(in);
-
+        in.fn=this.fn;
         fn.fileContent.interfaceList.add(in);
         ctx.inheritanceSpecifier().forEach(x->{
             in.addInheritance(x);
         });
-        parseInsideContract(in.nodeName, in,ctx);
+        parseInsideContract(in.label+"/"+in.nodeName, in,ctx);
 
     }
 
@@ -231,7 +232,6 @@ public class ContentParser extends SolidityBaseListener {
                     uf = new UsingFor(tmp.usingForDeclaration().identifier().getText(),null);
                 }
                 n.addUsingFor(uf);
-                System.out.println("using for");
             }else if(tmp.structDefinition()!=null){
                 Struct s = new Struct(n.nodeName,tmp.structDefinition().identifier().getText(), tmp.structDefinition());
                 String storage = null;
@@ -241,26 +241,19 @@ public class ContentParser extends SolidityBaseListener {
                 }
                 fn.fileContent.structList.add(s);
                 n.addStruct(s);
-                System.out.println(s.alias);
             }else if(tmp.stateVariableDeclaration()!=null){
                 List<StateVariableDeclaration> s = initMultipleStateVariable(previousNodeName,tmp.stateVariableDeclaration());
                 n.stateVariableDeclarationList.addAll(s);
-                System.out.println(n.stateVariableDeclarationList.size()-1);
                 if(n.stateVariableDeclarationList.size()-1>0) {
                     n.stateVariableDeclarationList.get(n.stateVariableDeclarationList.size()-1).stateVariableDeclarationList=new ArrayList<>(n.stateVariableDeclarationList.get(n.stateVariableDeclarationList.size()-1).stateVariableDeclarationList);
                     n.stateVariableDeclarationList.get(n.stateVariableDeclarationList.size()-1).stateVariableDeclarationList.add(n.stateVariableDeclarationList.get(n.stateVariableDeclarationList.size()-1));
                 }
-                System.out.println("StateVariableList:");
-                for(int i=0;i<n.stateVariableDeclarationList.size();i++){
-                    System.out.println(i+" "+n.stateVariableDeclarationList.get(i).alias);
-                }
             }else if(tmp.modifierDefinition()!=null){
-                Modifier m = new Modifier(tmp.modifierDefinition().identifier().getText(),BlockContext2Statement(null, null, previousNodeName,tmp.modifierDefinition().block()));
+                Modifier m = new Modifier(previousNodeName+"/",tmp.modifierDefinition().identifier().getText(),BlockContext2Statement(null, null, previousNodeName,tmp.modifierDefinition().block()));
                 if(tmp.modifierDefinition().parameterList()!=null){
                     m.parameterList = parameterContextList2ParameterList(tmp.modifierDefinition().parameterList());
                 }
                 n.addModifier(m);
-                System.out.println(m.alias);
             }else if(tmp.functionDefinition()!=null&&tmp.functionDefinition().functionIdentifier()!=null){  //normal function
                 Function function;
                 String stateMutability = null;
@@ -282,8 +275,6 @@ public class ContentParser extends SolidityBaseListener {
                 if(tmp.functionDefinition().expression()!=null) function.derivedconstructorList =functionExpression2ModifierList(tmp.functionDefinition());
                 if(tmp.functionDefinition().returnsParameters()!=null)function.returnParameterList=functionReturnsParameterListContext2ParameterList(tmp.functionDefinition().returnsParameters().parameterList());
                 n.addFunction(function);
-                System.out.println(function.alias);
-
             }else if(tmp.functionDefinition()!=null){   //constructor
 
                 Function f;
@@ -311,7 +302,6 @@ public class ContentParser extends SolidityBaseListener {
                 if(tmp.functionDefinition().expression()!=null) f.derivedconstructorList =functionExpression2ModifierList(tmp.functionDefinition());  //derived constructor as modifier
 
                 n.addFunction(f);
-                System.out.println("constructor");
             }else if(tmp.functionFallBackDefinition()!=null){   //fallback function
                 FallbackFunction f;
                 String stateMutability=null;
@@ -340,17 +330,14 @@ public class ContentParser extends SolidityBaseListener {
                     f.returnParameterList= functionReturnsParameterListContext2ParameterList(parameterListContext);
                 }
                 n.addFallbackFunction(f);
-                System.out.println("Fallback: "+f.alias);
             }else if(tmp.eventDefinition()!=null){
                 n.addEvent(tmp.eventDefinition().identifier().getText());
-                System.out.println("Event: "+n.eventList.get(n.eventList.size()-1));
             }else if(tmp.enumDefinition()!=null){
                 Enum e = new Enum(n.nodeName,tmp.enumDefinition().identifier().getText(), tmp.enumDefinition());
                 tmp.enumDefinition().enumValue().forEach(x->{
                     e.addValue(x.getText());
                 });
                 n.addEnum(e);
-                System.out.println(n.enumList.get(n.enumList.size()-1).alias);
             }
 
             count++;
@@ -595,7 +582,6 @@ public class ContentParser extends SolidityBaseListener {
 
     private static Pair<Integer, Expression> expressionContext2Expression(Block block, Statement statement,SolidityParser.ExpressionContext ctx){
         Pair<Integer, Expression> result=null;
-        System.out.println(ctx.getText());
         Expression e=null;
 
         if(ctx.twoPlusMinusOperator()!=null){

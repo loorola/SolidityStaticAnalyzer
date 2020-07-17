@@ -48,7 +48,7 @@ public class ContextSensitiveParser extends SolidityBaseListener {
                 }
             }
             if(hasConstructor==false) {
-                Function f = new Function(fn.fileContent.contractList.get(i).label,"constructor",null, null, null);
+                Function f = new Function(fn.fileContent.contractList.get(i).label+"/"+fn.fileContent.contractList.get(i).alias,"constructor",null, null, null);
                 fn.fileContent.contractList.get(i).functionList.add(f);
             }
         }
@@ -61,7 +61,6 @@ public class ContextSensitiveParser extends SolidityBaseListener {
 
     public void initCFG() {
         for (int i = 0; i < fn.fileContent.contractList.size(); i++) {
-            System.out.println("contract: "+fn.fileContent.contractList.get(i).alias);
             resolveStateVariableDeclarationList(fn.fileContent.contractList.get(i));
             for (int j = 0; j < fn.fileContent.contractList.get(i).functionList.size(); j++) {
                 resolveFunctionCall(fn.fileContent.contractList.get(i),fn.fileContent.contractList.get(i).functionList.get(j),null);
@@ -74,7 +73,6 @@ public class ContextSensitiveParser extends SolidityBaseListener {
         }
 
         for (int i = 0; i < fn.fileContent.libraryList.size(); i++) {
-            System.out.println("Library: "+fn.fileContent.libraryList.get(i).alias);
 
             resolveStateVariableDeclarationList(fn.fileContent.libraryList.get(i));
             for (int j = 0; j < fn.fileContent.libraryList.get(i).functionList.size(); j++) {
@@ -254,8 +252,6 @@ public class ContextSensitiveParser extends SolidityBaseListener {
 
     public FunctionCall getFunctionCallFromFunctionCall(Instance in, BaseFunction baseFunction, Expression expression, SolidityParser.ExpressionContext expressionContext, List<StateVariableDeclaration> stateVariableDeclarationList, int index, List<VariableDeclaration> variableDeclarationList){
         FunctionCall f = null;
-        if(expression!=null) System.out.println(expression.functionCall.expressionContext.getText());
-        if(expressionContext!=null) System.out.println(expressionContext.getText());
 
         if((expression!=null&&expression.functionCall!=null&&expression.expressionContext.functionCall().functionName().newContract()!=null)||(expressionContext!=null&&expressionContext.functionCall()!=null&&expressionContext.functionCall().functionName().newContract()!=null)){
             Pair<FileNode, Instance> p = null;
@@ -321,14 +317,24 @@ public class ContextSensitiveParser extends SolidityBaseListener {
                 }
             }
 
-
+            if(f==null&&alias.size()==1){
+                Function ff = matchFunctionFromInstance(in, alias.get(0));
+                if(ff!=null) f=new FunctionCall(in,ff);
+            }
+            if(f==null&&vt==null){
+                Pair<FileNode,Instance> p = matchLocalSourceByString(alias);
+                if(p!=null) {
+                    Function ff = matchFunctionFromInstance(p.getValue(), p.getValue().alias);
+                    f=new FunctionCall(p.getValue(),ff);
+                }
+            }
             if(f==null&&vt==null&&baseFunction!=null&&variableDeclarationList!=null) vt = matchVariableTypeFromVariableDeclarationList(alias.get(0),baseFunction.variableDeclarationList,variableDeclarationList);
             if(f==null&&vt==null) vt = matchVariableTypeFromStateDeclarationList(stateVariableDeclarationList, index, alias.get(0));
 
             if(f==null&&vt!=null&&vt.instanceType!=null){
                 if(alias.size()==2){
                     Function ff=matchFunctionFromInstance(vt.getInstance(),alias.get(1));    //no identifier
-                    if(ff!=null)f=new FunctionCall(in,ff);
+                    if(ff!=null)f=new FunctionCall(vt.getInstance(),ff);
                 }else{
                     f=matchFunctionCallFromMultiInstanceStateVariableDelcaration(in, alias);
                 }
@@ -719,6 +725,48 @@ public class ContextSensitiveParser extends SolidityBaseListener {
     }
 
 
+    public Pair<FileNode, Instance> matchLocalSourceByString(List<String> ctxList) {
+        Pair<FileNode, Instance> localSource = null;
+        Contract c = null;
+        LocalSource ls;
+        if (ctxList.size() == 1) {    //C c = new C(); ->C
+            for (int i = 0; i < fn.localSourceList.size(); i++) {
+                ls = fn.localSourceList.get(i);
+                if (ls.alias == null && ls.srcModule.size() == 0) {
+                    //'import' stringLiteral
+                    c = FindContractFromFileNode(ls.fn, ctxList.get(0));
+
+                } else if (ls.alias == null) {
+                    // 'import' *|identifier ('as' identifier)? 'from' stringLiteral
+                    // 'import' '{' importDeclaration (',' importDeclaration)* '}' 'from' stringLiteral ';' ;
+                    c = matchSourceModule(ls, ctxList.get(0));
+                }
+                if (c != null) {
+                    localSource = new Pair(ls.fn, c);
+                    break;
+                }
+            }
+        } else {  //C.B c = new C.B();
+            String alias = ctxList.get(0);
+
+            String contractName = ctxList.get(1);
+            for (int i = 0; i < fn.localSourceList.size(); i++) {
+                ls = fn.localSourceList.get(i);
+                if (ls.alias != null && ls.alias.equals(alias) && ls.srcModule.size() == 0) {
+                    c = FindContractFromFileNode(ls.fn, contractName);
+                } else if (ls.alias != null && ls.alias.equals(alias)) {
+                    c = matchSourceModule(ls, contractName);
+                }
+                if (c != null) {
+                    localSource = new Pair(ls.fn, c);
+                    break;
+                }
+            }
+
+        }
+        return localSource;
+    }
+
     public Pair<FileNode, Instance> matchLocalSource(List<SolidityParser.IdentifierContext> ctxList) {
         Pair<FileNode, Instance> localSource = null;
         Contract c = null;
@@ -742,7 +790,6 @@ public class ContextSensitiveParser extends SolidityBaseListener {
             }
         } else {  //C.B c = new C.B();
             String alias = ctxList.get(0).getText();
-            System.out.println("alias " + alias);
 
             String contractName = ctxList.get(1).getText();
             for (int i = 0; i < fn.localSourceList.size(); i++) {

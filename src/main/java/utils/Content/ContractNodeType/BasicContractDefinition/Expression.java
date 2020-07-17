@@ -3,6 +3,7 @@ package utils.Content.ContractNodeType.BasicContractDefinition;
 import parser.Base.SolidityParser;
 import utils.Content.ContractNodeType.BaseNode;
 import utils.Content.ContractNodeType.ExpressionDefinition.*;
+import utils.Content.ContractNodeType.SolidityClassDefinition.Instance;
 import utils.Content.ContractNodeType.Statement.ConditionalStatement;
 
 import java.util.ArrayList;
@@ -10,7 +11,6 @@ import java.util.List;
 import java.util.concurrent.locks.Condition;
 
 public class Expression extends BaseNode {
-
     public List<Expression> expressionList = new ArrayList<>();
     public ConditionalDeclaration conditionalDeclaration = null;
     public ConditionalExpression conditionalExpression = null;

@@ -1,23 +1,29 @@
 package parser;
 
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
-import org.antlr.v4.runtime.tree.pattern.ParseTreeMatch;
-import org.antlr.v4.runtime.tree.pattern.ParseTreePattern;
-
+import config.FileDirectory;
+import javafx.util.Pair;
+import org.antlr.runtime.tree.DOTTreeGenerator;
+import org.antlr.runtime.tree.Tree;
+import org.antlr.v4.gui.Trees;
+import org.antlr.v4.runtime.ANTLRFileStream;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import parser.Base.SolidityLexer;
 import parser.Base.SolidityParser;
-import report.CFG;
 import utils.File.FileNode;
 import utils.File.FileTree;
-import config.FileDirectory;
 
+import javax.swing.*;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.Future;
 
 public class ProjectParser {
-
+    public static List<Pair<SolidityParser,ParseTree>> parseTreeList=new ArrayList<>();
     public static void init(FileTree ft) throws Exception{ //parse all .sol files
         Stack<FileNode> s=new Stack<FileNode>();
         Path p;
@@ -30,7 +36,6 @@ public class ProjectParser {
             if(fn.path!=null){
                 tf=new File(fn.path);
                 if(!tf.isDirectory()){
-                    System.out.println("Contract: "+fn.path);
 
                     ContentParser contentParser = new ContentParser(fn);
                     p = FileDirectory.tmp_root.toPath().resolve(fn.path);
@@ -40,8 +45,8 @@ public class ProjectParser {
                     SolidityLexer lexer = new SolidityLexer(input);
                     CommonTokenStream tokens = new CommonTokenStream(lexer);
                     SolidityParser parser = new SolidityParser(tokens);
-
                     ParseTree tree = parser.sourceUnit();
+                    parseTreeList.add(new Pair(parser,tree));
 
                     /*
                     ParseTreePattern pp = parser.compileParseTreePattern("<expression>.<functionCall>",SolidityParser.RULE_expression );
@@ -61,7 +66,6 @@ public class ProjectParser {
                     //walker.walk(contentParser,tree);
                     //fn.functionCallTree = contentParser.ct;
                     //Testing.printFunctionCallTree(fn.functionCallTree);
-                    //System.out.println(tree.toStringTree(parser));
                 }
 
             }
@@ -70,6 +74,14 @@ public class ProjectParser {
             while(f.hasNext()){
                 s.push(f.next());
             }
+        }
+    }
+
+    public static void viewTree()throws Exception{
+        for(int i=0;i<parseTreeList.size();i++){
+            ParseTree tree = parseTreeList.get(i).getValue();
+            SolidityParser parser = parseTreeList.get(i).getKey();
+            Future<JFrame> frame = Trees.inspect(tree,parser);
         }
     }
 
@@ -97,7 +109,6 @@ public class ProjectParser {
                 s.push(f.next());
             }
         }
-        //CFG cfg = new CFG(ft.root);
 
     }
 

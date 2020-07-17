@@ -26,8 +26,8 @@ public class Function extends BaseFunction {
         this.visibleType = visibleType;
         this.block = block;
 
-        nodeName = alias;
-        label=previousNodeName+nodeName;
+        nodeName = "function "+alias;
+        label=previousNodeName;
         function = this;
 
     }

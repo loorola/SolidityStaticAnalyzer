@@ -3,6 +3,7 @@ package utils.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import parser.Base.SolidityParser;
 import utils.Content.FileContent;
 import utils.Source.GlobalSource;
 import utils.Source.LocalSource;
@@ -14,6 +15,7 @@ public class FileNode {
     public List<LocalSource> localSourceList = new ArrayList<>();
     public List<GlobalSource> globalSourceList = new ArrayList<>();
     public FileContent fileContent = new FileContent();
+    public SolidityParser.SourceUnitContext srcCTX;
     public FileNode(){
         path=null;
         parent=null;

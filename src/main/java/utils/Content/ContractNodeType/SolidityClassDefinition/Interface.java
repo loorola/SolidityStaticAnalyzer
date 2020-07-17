@@ -12,7 +12,7 @@ public class Interface extends Instance{
     public List<InheritanceType> inheritanceTypeList = new ArrayList<>();
 
     public Interface(String filePath, String alias, SolidityParser.InterfaceDefinitionContext ctx){
-        initCFGNode(filePath,alias);
+        initCFGNode(filePath,"interface "+alias);
 
         this.alias = alias;
         this.ctx=ctx;

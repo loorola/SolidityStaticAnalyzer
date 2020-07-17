@@ -12,7 +12,7 @@ public class Contract extends Instance {
     public List<SolidityParser.InheritanceSpecifierContext> inheritanceList = new ArrayList<>();
 
     public Contract(String filePath, String alias, SolidityParser.ContractDefinitionContext ctx){
-        initCFGNode(filePath,alias);
+        initCFGNode(filePath,"contract "+alias);
         this.alias = alias;
         this.ctx=ctx;
     }

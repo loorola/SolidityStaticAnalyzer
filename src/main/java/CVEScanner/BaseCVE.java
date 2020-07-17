@@ -5,10 +5,12 @@ import javafx.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BaseCVE {
+public abstract class BaseCVE {
     public String name;
     public String description;
-    List<Pair<String,String>> patternList = new ArrayList<>();
     public String xpath;
-    public String pattern;
+    public boolean enabled;
+    public int index;
+
+    public abstract List<String> scan();
 }

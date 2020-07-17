@@ -1,0 +1,37 @@
+<config>
+    <cve>
+        <name>Re-entrancy</name>
+        <description>This exploit was missed in review so many times by so many different people: reviewers tend to review functions one at a time, and assume that calls to secure subroutines will operate securely and as intended.</description>
+        <index>1</index>
+        <enabled>0</enabled>
+    </cve>
+    <cve>
+        <name>Callstack Depth</name>
+        <description>External function calls can fail any time because they exceed the maximum call stack of 1024. In such situations, Solidity throws an exception. Malicious actors might be able to force the call stack to a high value before they interact with your contract.</description>
+        <index>2</index>
+        <enabled>1</enabled>
+    </cve>
+    <cve>
+        <name>tx.origin Authorization</name>
+        <description>If your wallet had checked msg.sender for authorization, it would get the address of the attack wallet, instead of the owner address. But by checking tx.origin, it gets the original address that kicked off the transaction, which is still the owner address. The attack wallet instantly drains all your funds.</description>
+        <index>3</index>
+        <enabled>1</enabled>
+    </cve>
+    <cve>
+        <name>Dynamic Number for Looping</name>
+        <description>
+            Loops that do not have a fixed number of iterations, for example, loops that depend on storage values, have to be used carefully: Due to the block gas limit, transactions can only consume a certain amount of gas. Either explicitly or just due to normal operation, the number of iterations in a loop can grow beyond the block gas limit which can cause the complete contract to be stalled at a certain point. This may not apply to view functions that are only executed to read data from the blockchain. Still, such functions may be called by other contracts as part of on-chain operations and stall those. Please be explicit about such cases in the documentation of your contracts.
+        </description>
+        <index>4</index>
+        <enabled>1</enabled>
+    </cve>
+    <cve>
+        <name>Inline Assembly</name>
+        <description>
+            Inline assembly is a way to access the Ethereum Virtual Machine at a low level. This bypasses several important safety features and checks of Solidity. You should only use it for tasks that need it, and only if you are confident with using it.
+        </description>
+        <index>5</index>
+        <enabled>1</enabled>
+    </cve>
+
+</config>
